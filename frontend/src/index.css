@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: theme('fontFamily.body');
+    color: #f7f3ea;
+    background-color: #0c111d;
+  }
+
+  body {
+    @apply min-h-screen bg-haze text-sand-50;
+  }
+
+  #root {
+    @apply min-h-screen;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply rounded-3xl border border-white/10 bg-white/5 shadow-glow backdrop-blur-xl;
+  }
+
+  .field {
+    @apply w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-sand-50 outline-none transition placeholder:text-sand-100/35 focus:border-tide-400 focus:ring-2 focus:ring-tide-400/30;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-tide-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-tide-400 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-sand-50 transition hover:bg-white/10;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center rounded-full bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-400 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .table-wrap {
+    @apply overflow-hidden rounded-3xl border border-white/10 bg-white/5;
+  }
+}
