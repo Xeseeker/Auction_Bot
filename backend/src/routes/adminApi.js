@@ -1,13 +1,23 @@
 import express from 'express';
+import bot from '../bot/instance.js';
 import { authenticateAdminCredentials, requireAdminApi } from '../middleware/adminAuth.js';
+import Auction from '../models/Auction.js';
 import {
   getDashboardStats,
   getDetailedStats,
   listBidsForAdmin,
+  listPendingSellerApprovals,
   listUsersForAdmin,
+  updateSellerApprovalStatus,
   updateUserBanStatus,
 } from '../services/adminService.js';
-import { cancelAuctionByAdmin, getAuctionAdminDetails, listAuctionsForAdmin } from '../services/auctionService.js';
+import {
+  approveAuctionByAdmin,
+  cancelAuctionByAdmin,
+  getAuctionAdminDetails,
+  listAuctionsForAdmin,
+  rejectAuctionByAdmin,
+} from '../services/auctionService.js';
 
 const router = express.Router();
 
@@ -75,9 +85,76 @@ router.get('/auctions/:id', requireAdminApi, async (req, res) => {
   }
 });
 
+router.get('/auctions/:id/media/:mediaId', requireAdminApi, async (req, res) => {
+  try {
+    const auction = await Auction.findById(req.params.id).select('mediaAssets imageUrl videoUrl');
+    if (!auction) {
+      return res.status(404).json({ error: 'Auction not found.' });
+    }
+
+    const mediaAsset =
+      auction.mediaAssets?.find((asset) => String(asset._id) === String(req.params.mediaId)) ||
+      (auction.imageUrl && req.params.mediaId === 'legacy-image'
+        ? { kind: 'photo', fileId: auction.imageUrl }
+        : auction.videoUrl && req.params.mediaId === 'legacy-video'
+          ? { kind: 'video', fileId: auction.videoUrl }
+          : null);
+
+    if (!mediaAsset) {
+      return res.status(404).json({ error: 'Media asset not found.' });
+    }
+
+    if (mediaAsset.sourceUrl) {
+      return res.redirect(mediaAsset.sourceUrl);
+    }
+
+    if (!bot) {
+      return res.status(503).json({ error: 'Telegram bot is unavailable.' });
+    }
+
+    const fileUrl = await bot.getFileLink(mediaAsset.fileId);
+    const response = await fetch(fileUrl);
+    if (!response.ok) {
+      return res.status(502).json({ error: 'Could not fetch media from Telegram.' });
+    }
+
+    const mediaBuffer = Buffer.from(await response.arrayBuffer());
+    res.setHeader('Cache-Control', 'private, max-age=300');
+    res.setHeader('Content-Type', response.headers.get('content-type') || (mediaAsset.kind === 'video' ? 'video/mp4' : 'image/jpeg'));
+    return res.send(mediaBuffer);
+  } catch (error) {
+    return handleError(res, error);
+  }
+});
+
 router.put('/auctions/:id/cancel', requireAdminApi, async (req, res) => {
   try {
     const auction = await cancelAuctionByAdmin(req.params.id, {
+      reason: req.body?.reason || '',
+      adminLabel: req.session.adminUser?.username || 'Admin Panel',
+    });
+
+    return res.json({ ok: true, auction });
+  } catch (error) {
+    return handleError(res, error);
+  }
+});
+
+router.put('/auctions/:id/approve', requireAdminApi, async (req, res) => {
+  try {
+    const auction = await approveAuctionByAdmin(req.params.id, {
+      adminLabel: req.session.adminUser?.username || 'Admin Panel',
+    });
+
+    return res.json({ ok: true, auction });
+  } catch (error) {
+    return handleError(res, error);
+  }
+});
+
+router.put('/auctions/:id/reject', requireAdminApi, async (req, res) => {
+  try {
+    const auction = await rejectAuctionByAdmin(req.params.id, {
       reason: req.body?.reason || '',
       adminLabel: req.session.adminUser?.username || 'Admin Panel',
     });
@@ -96,10 +173,32 @@ router.get('/users', requireAdminApi, async (req, res) => {
   }
 });
 
+router.get('/users/pending-approvals', requireAdminApi, async (req, res) => {
+  try {
+    return res.json(await listPendingSellerApprovals(req.query));
+  } catch (error) {
+    return handleError(res, error);
+  }
+});
+
 router.put('/users/:id/ban', requireAdminApi, async (req, res) => {
   try {
     const user = await updateUserBanStatus(req.params.id, {
       banned: req.body?.banned,
+      reason: req.body?.reason || '',
+      adminLabel: req.session.adminUser?.username || 'Admin Panel',
+    });
+
+    return res.json({ ok: true, user });
+  } catch (error) {
+    return handleError(res, error);
+  }
+});
+
+router.put('/users/:id/seller-approval', requireAdminApi, async (req, res) => {
+  try {
+    const user = await updateSellerApprovalStatus(req.params.id, {
+      approved: req.body?.approved,
       reason: req.body?.reason || '',
       adminLabel: req.session.adminUser?.username || 'Admin Panel',
     });

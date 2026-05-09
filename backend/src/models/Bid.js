@@ -16,6 +16,14 @@ const bidSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    maxAutoBid: {
+      type: Number,
+      default: null,
+    },
+    isAutoBid: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

@@ -1,8 +1,13 @@
+import { useLocale } from '../lib/i18n.jsx';
+
 export function DataTable({ columns, rows, empty = 'No records found.' }) {
+  const { t } = useLocale();
+  const resolvedEmpty = empty === 'No records found.' ? t('no_records') : empty;
+
   if (!rows.length) {
     return (
       <div className="table-wrap p-10 text-center text-sm text-sand-100/55">
-        {empty}
+        {resolvedEmpty}
       </div>
     );
   }

@@ -13,16 +13,18 @@ import {
 import { DataTable } from '../components/DataTable.jsx';
 import { Panel } from '../components/Panel.jsx';
 import { StatusBadge } from '../components/StatusBadge.jsx';
+import { useLocale } from '../lib/i18n.jsx';
 
 const currency = (value) => `${Number(value || 0).toLocaleString()} ETB`;
-const person = (user) => (user?.username ? `@${user.username}` : [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'N/A');
+const person = (user, fallback = 'N/A') => (user?.username ? `@${user.username}` : [user?.firstName, user?.lastName].filter(Boolean).join(' ') || fallback);
 
 const pieColors = ['#3cbeb7', '#2fb87f', '#ff7a45', '#f45b69', '#75d7d0'];
 
 export function StatsPage({ data, loading, error, onRefresh }) {
+  const { t } = useLocale();
   const sellerRows =
-    data?.topSellers.map((row) => ({
-      name: person(row.seller),
+      data?.topSellers.map((row) => ({
+      name: person(row.seller, 'N/A'),
       auctions: row.auctionsCreated,
     })) || [];
 
@@ -30,21 +32,21 @@ export function StatsPage({ data, loading, error, onRefresh }) {
     <div className="space-y-6">
       <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-tide-300">Reporting</p>
-          <h1 className="mt-3 font-display text-4xl font-bold text-white">Detailed statistics</h1>
+          <p className="text-xs uppercase tracking-[0.3em] text-tide-300">{t('stats_tag')}</p>
+          <h1 className="mt-3 font-display text-4xl font-bold text-white">{t('stats_title')}</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-sand-100/60">
-            Understand which sellers, bidders, and auction states are driving platform activity.
+            {t('stats_subtitle')}
           </p>
         </div>
         <button className="btn-secondary" onClick={onRefresh} type="button">
-          Refresh data
+          {t('refresh')}
         </button>
       </header>
 
       {error ? <div className="rounded-2xl border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">{error}</div> : null}
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <Panel title="Auction status mix" subtitle="Current auction distribution by state">
+        <Panel title={t('auction_status_mix')} subtitle={t('auction_status_mix_subtitle')}>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -66,7 +68,7 @@ export function StatsPage({ data, loading, error, onRefresh }) {
           </div>
         </Panel>
 
-        <Panel title="Top sellers" subtitle="Auction volume by seller">
+        <Panel title={t('top_sellers_title')} subtitle={t('top_sellers_subtitle')}>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={sellerRows} layout="vertical" margin={{ left: 20 }}>
@@ -82,38 +84,38 @@ export function StatsPage({ data, loading, error, onRefresh }) {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <Panel title="Top bidders">
+        <Panel title={t('top_bidders_title')}>
           <DataTable
             rows={loading ? [] : data?.topBidders || []}
             columns={[
-              { key: 'bidder', label: 'Bidder', render: (row) => person(row.bidder) },
-              { key: 'count', label: 'Bids placed', render: (row) => row.bidsPlaced },
-              { key: 'maxBid', label: 'Max bid', render: (row) => currency(row.maxBid) },
+              { key: 'bidder', label: t('bidder_label'), render: (row) => person(row.bidder, t('not_available')) },
+              { key: 'count', label: t('bids_placed_column'), render: (row) => row.bidsPlaced },
+              { key: 'maxBid', label: t('max_bid_label'), render: (row) => currency(row.maxBid) },
             ]}
           />
         </Panel>
 
-        <Panel title="Highest-value auctions">
+        <Panel title={t('highest_value_auctions')}>
           <DataTable
             rows={loading ? [] : data?.highestBids || []}
             columns={[
-              { key: 'item', label: 'Auction', render: (row) => row.itemName },
-              { key: 'winner', label: 'Winner', render: (row) => person(row.highestBidder) },
-              { key: 'amount', label: 'Amount', render: (row) => currency(row.currentBid) },
-              { key: 'status', label: 'Status', render: (row) => <StatusBadge value={row.status} /> },
+              { key: 'item', label: t('auction_label'), render: (row) => row.itemName },
+              { key: 'winner', label: t('winner_label'), render: (row) => person(row.highestBidder, t('not_available')) },
+              { key: 'amount', label: t('amount_label'), render: (row) => currency(row.currentBid) },
+              { key: 'status', label: t('status_label'), render: (row) => <StatusBadge value={row.status} /> },
             ]}
           />
         </Panel>
       </div>
 
-      <Panel title="Latest bids">
+      <Panel title={t('latest_bids_title')}>
         <DataTable
           rows={loading ? [] : data?.latestBids || []}
           columns={[
-            { key: 'auction', label: 'Auction', render: (row) => row.auction?.itemName || 'N/A' },
-            { key: 'bidder', label: 'Bidder', render: (row) => person(row.bidder) },
-            { key: 'amount', label: 'Amount', render: (row) => currency(row.amount) },
-            { key: 'time', label: 'Time', render: (row) => new Date(row.createdAt).toLocaleString() },
+            { key: 'auction', label: t('auction_label'), render: (row) => row.auction?.itemName || t('not_available') },
+            { key: 'bidder', label: t('bidder_label'), render: (row) => person(row.bidder, t('not_available')) },
+            { key: 'amount', label: t('amount_label'), render: (row) => currency(row.amount) },
+            { key: 'time', label: t('time_label'), render: (row) => new Date(row.createdAt).toLocaleString() },
           ]}
         />
       </Panel>

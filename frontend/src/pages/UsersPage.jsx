@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { DataTable } from '../components/DataTable.jsx';
 import { Panel } from '../components/Panel.jsx';
 import { StatusBadge } from '../components/StatusBadge.jsx';
+import { useLocale } from '../lib/i18n.jsx';
 
-const person = (user) => (user?.username ? `@${user.username}` : [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'N/A');
+const person = (user, fallback) => (user?.username ? `@${user.username}` : [user?.firstName, user?.lastName].filter(Boolean).join(' ') || fallback);
 
-export function UsersPage({ users, loading, error, onSearch, onBanToggle }) {
-  const [filters, setFilters] = useState({ search: '', role: 'all', banned: '' });
+export function UsersPage({ users, loading, error, onSearch, onBanToggle, onApprovalReview }) {
+  const { t } = useLocale();
+  const [filters, setFilters] = useState({ search: '', role: 'all', banned: '', sellerApproval: 'all' });
 
   const submit = (event) => {
     event.preventDefault();
@@ -16,24 +18,24 @@ export function UsersPage({ users, loading, error, onSearch, onBanToggle }) {
   return (
     <div className="space-y-6">
       <header>
-        <p className="text-xs uppercase tracking-[0.3em] text-tide-300">Safety</p>
-        <h1 className="mt-3 font-display text-4xl font-bold text-white">User management</h1>
+        <p className="text-xs uppercase tracking-[0.3em] text-tide-300">{t('users_tag')}</p>
+        <h1 className="mt-3 font-display text-4xl font-bold text-white">{t('users_title')}</h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-sand-100/60">
-          Search platform accounts, review roles, and apply bans with a clear moderation trail.
+          {t('users_subtitle')}
         </p>
       </header>
 
       {error ? <div className="rounded-2xl border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">{error}</div> : null}
 
       <Panel
-        title="Accounts"
-        subtitle="Filter by role or restriction status"
+        title={t('accounts_title')}
+        subtitle={t('accounts_subtitle')}
         actions={
-          <form className="grid gap-3 xl:grid-cols-[minmax(220px,1fr)_160px_160px_auto]" onSubmit={submit}>
+          <form className="grid gap-3 xl:grid-cols-[minmax(220px,1fr)_140px_160px_180px_auto]" onSubmit={submit}>
             <input
               className="field"
               onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
-              placeholder="Username, name, or Telegram ID"
+              placeholder={t('user_search_placeholder')}
               value={filters.search}
             />
             <select
@@ -41,21 +43,32 @@ export function UsersPage({ users, loading, error, onSearch, onBanToggle }) {
               onChange={(event) => setFilters((current) => ({ ...current, role: event.target.value }))}
               value={filters.role}
             >
-              <option value="all">All roles</option>
-              <option value="user">Users</option>
-              <option value="admin">Admins</option>
+              <option value="all">{t('all_roles')}</option>
+              <option value="user">{t('status_user')}</option>
+              <option value="admin">{t('status_admin')}</option>
+            </select>
+            <select
+              className="field"
+              onChange={(event) => setFilters((current) => ({ ...current, sellerApproval: event.target.value }))}
+              value={filters.sellerApproval}
+            >
+              <option value="all">{t('any_approval')}</option>
+              <option value="pending">{t('status_pending')}</option>
+              <option value="approved">{t('status_approved')}</option>
+              <option value="rejected">{t('status_rejected')}</option>
+              <option value="not_requested">{t('status_not_requested')}</option>
             </select>
             <select
               className="field"
               onChange={(event) => setFilters((current) => ({ ...current, banned: event.target.value }))}
               value={filters.banned}
             >
-              <option value="">Any status</option>
-              <option value="false">Active only</option>
-              <option value="true">Banned only</option>
+              <option value="">{t('any_access')}</option>
+              <option value="false">{t('active_only')}</option>
+              <option value="true">{t('banned_only')}</option>
             </select>
             <button className="btn-primary" disabled={loading} type="submit">
-              {loading ? 'Loading...' : 'Apply'}
+              {loading ? t('loading') : t('apply')}
             </button>
           </form>
         }
@@ -63,28 +76,69 @@ export function UsersPage({ users, loading, error, onSearch, onBanToggle }) {
         <DataTable
           rows={users}
           columns={[
-            { key: 'user', label: 'User', render: (row) => person(row) },
-            { key: 'telegramId', label: 'Telegram ID', render: (row) => row.telegramId },
-            { key: 'role', label: 'Role', render: (row) => <StatusBadge value={row.role} /> },
+            { key: 'user', label: t('user_label'), render: (row) => person(row, t('not_available')) },
+            { key: 'telegramId', label: t('telegram_id'), render: (row) => row.telegramId },
+            { key: 'role', label: t('role_label'), render: (row) => <StatusBadge value={row.role} /> },
             {
-              key: 'status',
-              label: 'Status',
+              key: 'access',
+              label: t('access_label'),
               render: (row) => <StatusBadge value={row.banned ? 'banned' : 'active'} />,
             },
             {
+              key: 'sellerApproval',
+              label: t('seller_approval'),
+              render: (row) => <StatusBadge value={row.sellerApprovalStatus || (row.sellerApproved ? 'approved' : 'not_requested')} />,
+            },
+            {
+              key: 'requested',
+              label: t('requested_label'),
+              render: (row) => (row.approvalRequestedAt ? new Date(row.approvalRequestedAt).toLocaleString() : t('not_available')),
+            },
+            {
+              key: 'reviewedBy',
+              label: t('review_by'),
+              render: (row) => row.approvedBy || t('not_available'),
+            },
+            {
+              key: 'watchlist',
+              label: t('watchlist_count'),
+              render: (row) => row.watchlist?.length || 0,
+            },
+            {
               key: 'action',
-              label: 'Action',
+              label: t('actions_label'),
               render: (row) => (
-                <button
-                  className={row.banned ? 'btn-secondary' : 'btn-danger'}
-                  onClick={() => {
-                    const reason = row.banned ? '' : window.prompt('Optional ban reason:') || '';
-                    onBanToggle(row._id, !row.banned, reason);
-                  }}
-                  type="button"
-                >
-                  {row.banned ? 'Unban' : 'Ban'}
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    className="btn-secondary"
+                    disabled={row.sellerApproved}
+                    onClick={() => onApprovalReview(row._id, true)}
+                    type="button"
+                  >
+                    {row.sellerApproved ? t('status_approved') : t('approve')}
+                  </button>
+                  <button
+                    className="btn-danger"
+                    disabled={row.sellerApprovalStatus === 'not_requested'}
+                    onClick={() => {
+                      const reason = window.prompt(t('rejection_reason_prompt')) || '';
+                      onApprovalReview(row._id, false, reason);
+                    }}
+                    type="button"
+                  >
+                    {t('reject')}
+                  </button>
+                  <button
+                    className={row.banned ? 'btn-secondary' : 'btn-danger'}
+                    onClick={() => {
+                      const reason = row.banned ? '' : window.prompt(t('ban_reason_prompt')) || '';
+                      onBanToggle(row._id, !row.banned, reason);
+                    }}
+                    type="button"
+                  >
+                    {row.banned ? t('unban') : t('ban')}
+                  </button>
+                </div>
               ),
             },
           ]}

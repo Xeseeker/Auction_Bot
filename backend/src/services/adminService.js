@@ -1,7 +1,8 @@
 import Auction from '../models/Auction.js';
 import Bid from '../models/Bid.js';
 import User from '../models/User.js';
-import bot from '../bot/instance.js';
+import { emitPlatformUpdate } from './liveUpdateService.js';
+import { sendBotMessage } from './notificationService.js';
 
 const toPositiveInt = (value, fallback) => {
   const parsed = Number.parseInt(value, 10);
@@ -15,7 +16,7 @@ const createPagination = (page, limit, total) => ({
   pages: Math.max(Math.ceil(total / limit), 1),
 });
 
-const buildUserQuery = ({ search = '', role, banned }) => {
+const buildUserQuery = ({ search = '', role, banned, sellerApproval }) => {
   const query = {};
 
   if (role && role !== 'all') {
@@ -26,6 +27,10 @@ const buildUserQuery = ({ search = '', role, banned }) => {
     query.banned = true;
   } else if (banned === 'false') {
     query.banned = false;
+  }
+
+  if (sellerApproval && sellerApproval !== 'all') {
+    query.sellerApprovalStatus = sellerApproval;
   }
 
   if (search) {
@@ -61,6 +66,7 @@ export const getDashboardStats = async () => {
   const [
     usersCount,
     bannedUsersCount,
+    pendingSellerApprovals,
     auctionsByStatus,
     totalBids,
     totalVolumeData,
@@ -71,6 +77,7 @@ export const getDashboardStats = async () => {
   ] = await Promise.all([
     User.countDocuments(),
     User.countDocuments({ banned: true }),
+    User.countDocuments({ sellerApprovalStatus: 'pending' }),
     Auction.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]),
     Bid.countDocuments(),
     Auction.aggregate([
@@ -123,12 +130,14 @@ export const getDashboardStats = async () => {
     overview: {
       totalUsers: usersCount,
       bannedUsers: bannedUsersCount,
+      pendingSellerApprovals,
       totalAuctions:
         (auctionStatusMap.active || 0) +
         (auctionStatusMap.ended || 0) +
         (auctionStatusMap.cancelled || 0) +
         (auctionStatusMap.pending || 0),
       activeAuctions: auctionStatusMap.active || 0,
+      pendingAuctions: auctionStatusMap.pending || 0,
       endedAuctions: auctionStatusMap.ended || 0,
       cancelledAuctions: auctionStatusMap.cancelled || 0,
       totalBids,
@@ -143,10 +152,10 @@ export const getDashboardStats = async () => {
   };
 };
 
-export const listUsersForAdmin = async ({ search, role, banned, page, limit }) => {
+export const listUsersForAdmin = async ({ search, role, banned, sellerApproval, page, limit }) => {
   const currentPage = toPositiveInt(page, 1);
   const perPage = Math.min(toPositiveInt(limit, 20), 100);
-  const query = buildUserQuery({ search, role, banned });
+  const query = buildUserQuery({ search, role, banned, sellerApproval });
 
   const [items, total] = await Promise.all([
     User.find(query).sort({ createdAt: -1 }).skip((currentPage - 1) * perPage).limit(perPage),
@@ -158,6 +167,9 @@ export const listUsersForAdmin = async ({ search, role, banned, page, limit }) =
     pagination: createPagination(currentPage, perPage, total),
   };
 };
+
+export const listPendingSellerApprovals = async ({ page, limit } = {}) =>
+  listUsersForAdmin({ sellerApproval: 'pending', page, limit });
 
 export const updateUserBanStatus = async (userId, { banned, reason = '', adminLabel = 'Admin Panel' }) => {
   const user = await User.findById(userId);
@@ -172,20 +184,79 @@ export const updateUserBanStatus = async (userId, { banned, reason = '', adminLa
   user.banReason = user.banned ? reason : '';
   await user.save();
 
-  if (bot && user.telegramId) {
-    try {
-      await bot.sendMessage(
-        user.telegramId,
-        user.banned
-          ? `Your Telegram Auction account has been restricted by ${adminLabel}.${reason ? `\nReason: ${reason}` : ''}`
-          : 'Your Telegram Auction account restriction has been lifted.'
-      );
-    } catch (error) {
-      console.error('Failed to notify user about ban update:', error);
-    }
-  }
+  await sendBotMessage(
+    user.telegramId,
+    user.banned
+      ? `Your Telegram Auction account has been restricted by ${adminLabel}.${reason ? `\nReason: ${reason}` : ''}`
+      : 'Your Telegram Auction account restriction has been lifted.'
+  );
+
+  emitPlatformUpdate('users:update', { type: 'user:ban-changed', userId: String(user._id), banned: user.banned });
+  emitPlatformUpdate('dashboard:update', { type: 'user:ban-changed', userId: String(user._id), banned: user.banned });
 
   return user;
+};
+
+export const updateSellerApprovalStatus = async (userId, { approved, reason = '', adminLabel = 'Admin Panel' }) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    const error = new Error('User not found.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const reviewedAt = new Date();
+
+  user.sellerApproved = Boolean(approved);
+  user.sellerApprovalStatus = approved ? 'approved' : 'rejected';
+  user.approvedAt = approved ? reviewedAt : null;
+  user.approvedBy = adminLabel;
+  user.approvalReviewedAt = reviewedAt;
+  user.approvalRejectionReason = approved ? '' : reason;
+  await user.save();
+
+  await sendBotMessage(
+    user.telegramId,
+    approved
+      ? 'Your seller account has been approved. You can now use /post to submit auctions for review.'
+      : `Your seller approval request was rejected by ${adminLabel}.${reason ? `\nReason: ${reason}` : ''}`
+  );
+
+  emitPlatformUpdate('users:update', { type: 'seller:approval-reviewed', userId: String(user._id), approved: Boolean(approved) });
+  emitPlatformUpdate('dashboard:update', { type: 'seller:approval-reviewed', userId: String(user._id), approved: Boolean(approved) });
+
+  return user;
+};
+
+export const requestSellerApproval = async (telegramId) => {
+  const user = await User.findOne({ telegramId });
+  if (!user) {
+    const error = new Error('User not found.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (user.sellerApproved) {
+    return { user, state: 'approved' };
+  }
+
+  if (user.sellerApprovalStatus === 'pending') {
+    return { user, state: 'pending' };
+  }
+
+  user.sellerApprovalStatus = 'pending';
+  user.sellerApproved = false;
+  user.approvalRequestedAt = new Date();
+  user.approvedAt = null;
+  user.approvalReviewedAt = null;
+  user.approvalRejectionReason = '';
+  user.approvedBy = '';
+  await user.save();
+
+  emitPlatformUpdate('users:update', { type: 'seller:approval-requested', userId: String(user._id) });
+  emitPlatformUpdate('dashboard:update', { type: 'seller:approval-requested', userId: String(user._id) });
+
+  return { user, state: 'requested' };
 };
 
 export const listBidsForAdmin = async ({ auctionId, bidderId, page, limit }) => {

@@ -43,11 +43,27 @@ export const adminApi = {
       method: 'PUT',
       body: JSON.stringify(body),
     }),
+  approveAuction: (id) =>
+    request(`/api/admin/auctions/${id}/approve`, {
+      method: 'PUT',
+    }),
+  rejectAuction: (id, body) =>
+    request(`/api/admin/auctions/${id}/reject`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    }),
   users: (query = '') => request(`/api/admin/users${query ? `?${query}` : ''}`),
+  pendingSellerApprovals: (query = '') => request(`/api/admin/users/pending-approvals${query ? `?${query}` : ''}`),
   banUser: (id, body) =>
     request(`/api/admin/users/${id}/ban`, {
       method: 'PUT',
       body: JSON.stringify(body),
     }),
+  reviewSeller: (id, body) =>
+    request(`/api/admin/users/${id}/seller-approval`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    }),
   stats: () => request('/api/admin/stats'),
+  auctionMediaUrl: (auctionId, mediaId) => `/api/admin/auctions/${auctionId}/media/${mediaId}`,
 };
