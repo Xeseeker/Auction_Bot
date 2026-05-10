@@ -42,6 +42,7 @@ export default function App() {
     items: [],
     selected: null,
     detailLoading: false,
+    pagination: null,
     query: '',
   });
   const [users, setUsers] = useState({ loading: true, error: '', items: [], pagination: null, query: '' });
@@ -94,6 +95,7 @@ export default function App() {
         loading: false,
         error: '',
         items: data.items,
+        pagination: data.pagination,
         query,
       }));
     } catch (error) {
@@ -284,6 +286,10 @@ export default function App() {
     loadUsers({ ...queryToObject(users.query), page: String(page) });
   };
 
+  const changeAuctionPage = (page) => {
+    loadAuctions({ ...queryToObject(auctions.query), page: String(page) });
+  };
+
   if (!authReady) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -336,9 +342,11 @@ export default function App() {
                 loading={auctions.loading}
                 onApprove={(auctionId) => reviewAuction(auctionId, true)}
                 onCancel={cancelAuction}
+                onPageChange={changeAuctionPage}
                 onReject={(auctionId, reason) => reviewAuction(auctionId, false, reason)}
                 onSearch={loadAuctions}
                 onSelect={loadAuctionDetail}
+                pagination={auctions.pagination}
                 selectedAuction={auctions.selected}
               />
             }

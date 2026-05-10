@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { DataTable } from '../components/DataTable.jsx';
+import { PaginationControls } from '../components/PaginationControls.jsx';
 import { Panel } from '../components/Panel.jsx';
 import { StatusBadge } from '../components/StatusBadge.jsx';
 import { adminApi } from '../lib/api.js';
@@ -11,11 +12,13 @@ const person = (user, fallback) =>
 
 export function AuctionsPage({
   auctions,
+  pagination,
   selectedAuction,
   loading,
   detailLoading,
   error,
   onSearch,
+  onPageChange,
   onSelect,
   onCancel,
   onApprove,
@@ -119,6 +122,7 @@ export function AuctionsPage({
             { key: 'ends', label: t('ends_label'), render: (row) => new Date(row.endTime).toLocaleString() },
           ]}
         />
+        <PaginationControls loading={loading} onPageChange={onPageChange} pagination={pagination} />
       </Panel>
 
       <Panel
