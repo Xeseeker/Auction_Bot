@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { DataTable } from '../components/DataTable.jsx';
+import { PaginationControls } from '../components/PaginationControls.jsx';
 import { Panel } from '../components/Panel.jsx';
 import { useLocale } from '../lib/i18n.jsx';
 
-export function AuditLogsPage({ logs, loading, error, onSearch }) {
+export function AuditLogsPage({ logs, pagination, loading, error, onSearch, onPageChange }) {
   const { t } = useLocale();
   const [filters, setFilters] = useState({ actor: '', action: '', entityType: '' });
 
@@ -70,6 +71,7 @@ export function AuditLogsPage({ logs, loading, error, onSearch }) {
             { key: 'reason', label: t('audit_reason'), render: (row) => row.reason || t('none') },
           ]}
         />
+        <PaginationControls loading={loading} onPageChange={onPageChange} pagination={pagination} />
       </Panel>
     </div>
   );

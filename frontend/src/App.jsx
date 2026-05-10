@@ -47,7 +47,7 @@ export default function App() {
   });
   const [users, setUsers] = useState({ loading: true, error: '', items: [], pagination: null, query: '' });
   const [stats, setStats] = useState({ loading: true, error: '', data: null });
-  const [auditLogs, setAuditLogs] = useState({ loading: true, error: '', items: [], query: '' });
+  const [auditLogs, setAuditLogs] = useState({ loading: true, error: '', items: [], pagination: null, query: '' });
   const [socketConnected, setSocketConnected] = useState(false);
 
   const handleUnauthorized = () => {
@@ -162,7 +162,14 @@ export default function App() {
     setAuditLogs((current) => ({ ...current, loading: true, error: '', query }));
     try {
       const data = await adminApi.auditLogs(query);
-      setAuditLogs((current) => ({ ...current, loading: false, error: '', items: data.items, query }));
+      setAuditLogs((current) => ({
+        ...current,
+        loading: false,
+        error: '',
+        items: data.items,
+        pagination: data.pagination,
+        query,
+      }));
     } catch (error) {
       if (error.status === 401) {
         handleUnauthorized();
@@ -290,6 +297,10 @@ export default function App() {
     loadAuctions({ ...queryToObject(auctions.query), page: String(page) });
   };
 
+  const changeAuditLogPage = (page) => {
+    loadAuditLogs({ ...queryToObject(auditLogs.query), page: String(page) });
+  };
+
   if (!authReady) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -377,7 +388,9 @@ export default function App() {
                 error={auditLogs.error}
                 loading={auditLogs.loading}
                 logs={auditLogs.items}
+                onPageChange={changeAuditLogPage}
                 onSearch={loadAuditLogs}
+                pagination={auditLogs.pagination}
               />
             }
           />
