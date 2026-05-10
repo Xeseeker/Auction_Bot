@@ -8,6 +8,7 @@ export function AppShell({ adminUser, onLogout, socketConnected, children }) {
     { to: '/auctions', label: t('nav_auctions') },
     { to: '/users', label: t('nav_users') },
     { to: '/stats', label: t('nav_statistics') },
+    { to: '/audit-logs', label: t('nav_audit_logs') },
   ];
 
   return (

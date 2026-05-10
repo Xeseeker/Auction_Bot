@@ -13,6 +13,9 @@ const AuctionsPage = lazy(() =>
 );
 const UsersPage = lazy(() => import('./pages/UsersPage.jsx').then((module) => ({ default: module.UsersPage })));
 const StatsPage = lazy(() => import('./pages/StatsPage.jsx').then((module) => ({ default: module.StatsPage })));
+const AuditLogsPage = lazy(() =>
+  import('./pages/AuditLogsPage.jsx').then((module) => ({ default: module.AuditLogsPage }))
+);
 const LoginPage = lazy(() => import('./pages/LoginPage.jsx').then((module) => ({ default: module.LoginPage })));
 
 function ProtectedLayout({ adminUser, onLogout, socketConnected }) {
@@ -41,6 +44,7 @@ export default function App() {
   });
   const [users, setUsers] = useState({ loading: true, error: '', items: [], query: '' });
   const [stats, setStats] = useState({ loading: true, error: '', data: null });
+  const [auditLogs, setAuditLogs] = useState({ loading: true, error: '', items: [], query: '' });
   const [socketConnected, setSocketConnected] = useState(false);
 
   const handleUnauthorized = () => {
@@ -140,6 +144,22 @@ export default function App() {
     }
   };
 
+  const loadAuditLogs = async (filters = null) => {
+    const query = filters
+      ? new URLSearchParams(Object.entries(filters).filter(([, value]) => value)).toString()
+      : auditLogs.query;
+    setAuditLogs((current) => ({ ...current, loading: true, error: '', query }));
+    try {
+      const data = await adminApi.auditLogs(query);
+      setAuditLogs((current) => ({ ...current, loading: false, error: '', items: data.items, query }));
+    } catch (error) {
+      if (error.status === 401) {
+        handleUnauthorized();
+      }
+      setAuditLogs((current) => ({ ...current, loading: false, error: error.message }));
+    }
+  };
+
   useEffect(() => {
     loadSession();
   }, []);
@@ -154,6 +174,7 @@ export default function App() {
       loadAuctions();
       loadUsers();
       loadStats();
+      loadAuditLogs();
     });
   }, [adminUser]);
 
@@ -325,6 +346,17 @@ export default function App() {
           <Route
             path="/stats"
             element={<StatsPage data={stats.data} error={stats.error} loading={stats.loading} onRefresh={loadStats} />}
+          />
+          <Route
+            path="/audit-logs"
+            element={
+              <AuditLogsPage
+                error={auditLogs.error}
+                loading={auditLogs.loading}
+                logs={auditLogs.items}
+                onSearch={loadAuditLogs}
+              />
+            }
           />
         </Route>
 
