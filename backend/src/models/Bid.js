@@ -28,6 +28,10 @@ const bidSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+bidSchema.index({ auction: 1, createdAt: -1 });
+bidSchema.index({ bidder: 1, createdAt: -1 });
+bidSchema.index({ auction: 1, bidder: 1 });
+
 const Bid = mongoose.model('Bid', bidSchema);
 
 export default Bid;

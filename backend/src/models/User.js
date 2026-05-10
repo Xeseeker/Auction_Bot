@@ -80,6 +80,10 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+userSchema.index({ role: 1, banned: 1 });
+userSchema.index({ sellerApprovalStatus: 1, createdAt: -1 });
+userSchema.index({ watchlist: 1 });
+
 const User = mongoose.model('User', userSchema);
 
 export default User;

@@ -137,6 +137,12 @@ const auctionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+auctionSchema.index({ status: 1, endTime: 1 });
+auctionSchema.index({ status: 1, createdAt: -1 });
+auctionSchema.index({ seller: 1, createdAt: -1 });
+auctionSchema.index({ highestBidder: 1 });
+auctionSchema.index({ auctionType: 1, status: 1 });
+
 const Auction = mongoose.model('Auction', auctionSchema);
 
 export default Auction;
