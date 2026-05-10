@@ -315,6 +315,19 @@ export const setupCommands = () => {
     return bot.sendMessage(chatId, t(user.language, 'language_changed'));
   });
 
+  bot.onText(/\/cancel/, async (msg) => {
+    const chatId = msg.chat.id;
+    const user = await User.findOne({ telegramId: String(msg.from.id) });
+    const locale = userLanguage(user, msg.from.language_code);
+
+    if (!stateManager.get(chatId)) {
+      return bot.sendMessage(chatId, t(locale, 'cancel_no_state'));
+    }
+
+    stateManager.delete(chatId);
+    return bot.sendMessage(chatId, t(locale, 'cancel_done'));
+  });
+
   bot.onText(/\/post/, async (msg) => {
     const chatId = msg.chat.id;
     const telegramId = String(msg.from.id);

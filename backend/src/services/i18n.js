@@ -42,6 +42,8 @@ const dictionary = {
     post_dutch_floor: 'Enter the Dutch auction floor price (the lowest allowed price):',
     post_dutch_drop: 'Enter how much the Dutch auction price should drop each step:',
     post_dutch_interval: 'Enter the Dutch auction drop interval in minutes:',
+    cancel_done: 'Current action cancelled. You can start again whenever you are ready.',
+    cancel_no_state: 'Nothing is in progress right now.',
   },
   sw: {
     language_changed: 'Lugha imebadilishwa kuwa Kiswahili.',
@@ -85,6 +87,8 @@ const dictionary = {
     post_dutch_floor: 'Weka bei ya chini kabisa ya mnada wa Dutch:',
     post_dutch_drop: 'Weka kiasi kitakachopunguzwa kila hatua:',
     post_dutch_interval: 'Weka muda wa kupungua kwa dakika:',
+    cancel_done: 'Kitendo cha sasa kimeghairiwa. Unaweza kuanza tena ukiwa tayari.',
+    cancel_no_state: 'Hakuna kinachoendelea kwa sasa.',
   },
   am: {
     language_changed: 'ቋንቋው ወደ አማርኛ ተቀይሯል።',
