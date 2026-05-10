@@ -20,15 +20,6 @@ const getAuctionStartingValue = (auction) =>
   isDutchAuction(auction)
     ? Number(auction.startingPrice || auction.currentBid || 0)
     : Number(auction.startingPrice || 0);
-const normalizeMediaAssetInput = (mediaAssets = []) =>
-  (Array.isArray(mediaAssets) ? mediaAssets : [])
-    .map((asset) => ({
-      kind: asset?.kind === 'video' ? 'video' : 'photo',
-      fileId: String(asset?.fileId || '').trim(),
-      sourceUrl: String(asset?.sourceUrl || '').trim(),
-      caption: String(asset?.caption || '').trim(),
-    }))
-    .filter((asset) => asset.fileId || asset.sourceUrl);
 export const getCurrentDutchPrice = (auction, at = new Date()) => {
   const openingPrice = Number(auction.startingPrice) || 0;
   const floorPrice = Number(auction.dutchFloorPrice) || 0;
