@@ -65,5 +65,6 @@ export const adminApi = {
       body: JSON.stringify(body),
     }),
   stats: () => request('/api/admin/stats'),
+  auditLogs: (query = '') => request(`/api/admin/audit-logs${query ? `?${query}` : ''}`),
   auctionMediaUrl: (auctionId, mediaId) => `/api/admin/auctions/${auctionId}/media/${mediaId}`,
 };
