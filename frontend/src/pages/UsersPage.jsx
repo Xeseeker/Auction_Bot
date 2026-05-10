@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { DataTable } from '../components/DataTable.jsx';
+import { PaginationControls } from '../components/PaginationControls.jsx';
 import { Panel } from '../components/Panel.jsx';
 import { StatusBadge } from '../components/StatusBadge.jsx';
 import { useLocale } from '../lib/i18n.jsx';
@@ -7,7 +8,16 @@ import { useLocale } from '../lib/i18n.jsx';
 const person = (user, fallback) =>
   user?.username ? `@${user.username}` : [user?.firstName, user?.lastName].filter(Boolean).join(' ') || fallback;
 
-export function UsersPage({ users, loading, error, onSearch, onBanToggle, onApprovalReview }) {
+export function UsersPage({
+  users,
+  pagination,
+  loading,
+  error,
+  onSearch,
+  onPageChange,
+  onBanToggle,
+  onApprovalReview,
+}) {
   const { t } = useLocale();
   const [filters, setFilters] = useState({ search: '', role: 'all', banned: '', sellerApproval: 'all' });
 
@@ -149,6 +159,7 @@ export function UsersPage({ users, loading, error, onSearch, onBanToggle, onAppr
             },
           ]}
         />
+        <PaginationControls loading={loading} onPageChange={onPageChange} pagination={pagination} />
       </Panel>
     </div>
   );

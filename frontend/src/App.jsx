@@ -18,6 +18,8 @@ const AuditLogsPage = lazy(() =>
 );
 const LoginPage = lazy(() => import('./pages/LoginPage.jsx').then((module) => ({ default: module.LoginPage })));
 
+const queryToObject = (query) => Object.fromEntries(new URLSearchParams(query || ''));
+
 function ProtectedLayout({ adminUser, onLogout, socketConnected }) {
   return (
     <AppShell adminUser={adminUser} onLogout={onLogout} socketConnected={socketConnected}>
@@ -42,7 +44,7 @@ export default function App() {
     detailLoading: false,
     query: '',
   });
-  const [users, setUsers] = useState({ loading: true, error: '', items: [], query: '' });
+  const [users, setUsers] = useState({ loading: true, error: '', items: [], pagination: null, query: '' });
   const [stats, setStats] = useState({ loading: true, error: '', data: null });
   const [auditLogs, setAuditLogs] = useState({ loading: true, error: '', items: [], query: '' });
   const [socketConnected, setSocketConnected] = useState(false);
@@ -122,7 +124,14 @@ export default function App() {
     setUsers((current) => ({ ...current, loading: true, error: '', query }));
     try {
       const data = await adminApi.users(query);
-      setUsers((current) => ({ ...current, loading: false, error: '', items: data.items, query }));
+      setUsers((current) => ({
+        ...current,
+        loading: false,
+        error: '',
+        items: data.items,
+        pagination: data.pagination,
+        query,
+      }));
     } catch (error) {
       if (error.status === 401) {
         handleUnauthorized();
@@ -271,6 +280,10 @@ export default function App() {
     await Promise.all([loadUsers(), loadDashboard()]);
   };
 
+  const changeUserPage = (page) => {
+    loadUsers({ ...queryToObject(users.query), page: String(page) });
+  };
+
   if (!authReady) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -338,7 +351,9 @@ export default function App() {
                 loading={users.loading}
                 onApprovalReview={reviewSeller}
                 onBanToggle={toggleBan}
+                onPageChange={changeUserPage}
                 onSearch={loadUsers}
+                pagination={users.pagination}
                 users={users.items}
               />
             }
