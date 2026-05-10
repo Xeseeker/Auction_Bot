@@ -31,7 +31,7 @@ export const startCronJobs = () => {
       // Find active auctions where endTime is passed
       const expiredAuctions = await Auction.find({
         status: 'active',
-        endTime: { $lte: now }
+        endTime: { $lte: now },
       });
 
       if (expiredAuctions.length > 0) {
@@ -44,6 +44,6 @@ export const startCronJobs = () => {
       console.error('❌ Error in Cron Job checking for expired auctions:', error);
     }
   });
-  
+
   console.log('✅ Cron Jobs scheduled.');
 };

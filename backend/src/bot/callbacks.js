@@ -2,7 +2,13 @@ import bot from './instance.js';
 import stateManager from './stateManager.js';
 import User from '../models/User.js';
 import { requestSellerApproval, updateSellerApprovalStatus } from '../services/adminService.js';
-import { approveAuctionByAdmin, buyNowAuction, rejectAuctionByAdmin, toggleAuctionWatchlist, acceptDutchAuctionPrice } from '../services/auctionService.js';
+import {
+  approveAuctionByAdmin,
+  buyNowAuction,
+  rejectAuctionByAdmin,
+  toggleAuctionWatchlist,
+  acceptDutchAuctionPrice,
+} from '../services/auctionService.js';
 import { normalizeLanguage, t } from '../services/i18n.js';
 import { notifyAdminUsers } from '../services/notificationService.js';
 
@@ -38,7 +44,9 @@ export const setupCallbacks = () => {
 
         await notifyAdminUsers(
           `Seller approval requested\n\nUser: ${
-            user.username ? `@${user.username}` : [user.firstName, user.lastName].filter(Boolean).join(' ') || user.telegramId
+            user.username
+              ? `@${user.username}`
+              : [user.firstName, user.lastName].filter(Boolean).join(' ') || user.telegramId
           }\nTelegram ID: ${user.telegramId}`,
           {
             reply_markup: {

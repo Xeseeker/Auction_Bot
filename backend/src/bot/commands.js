@@ -27,7 +27,8 @@ const detectLanguage = (telegramLanguageCode = '') => {
   if (code.startsWith('am')) return 'am';
   return 'en';
 };
-const userLanguage = (user, telegramLanguageCode = '') => normalizeLanguage(user?.language || detectLanguage(telegramLanguageCode));
+const userLanguage = (user, telegramLanguageCode = '') =>
+  normalizeLanguage(user?.language || detectLanguage(telegramLanguageCode));
 
 const getPostingBlockedMessage = (user) => {
   if (user.sellerApprovalStatus === 'pending') {
@@ -106,7 +107,7 @@ export const setupCommands = () => {
       user.username = msg.from.username || '';
       user.firstName = msg.from.first_name || user.firstName;
       user.lastName = msg.from.last_name || user.lastName;
-       user.language = userLanguage(user, msg.from.language_code);
+      user.language = userLanguage(user, msg.from.language_code);
       await user.save();
     }
 
@@ -148,9 +149,13 @@ export const setupCommands = () => {
       }
 
       if (auction.auctionType === 'sealed_bid') {
-        return bot.sendMessage(chatId, t(locale, 'bid_prompt_sealed', { item: auction.itemName, amount: String(auction.startingPrice) }), {
-          parse_mode: 'Markdown',
-        });
+        return bot.sendMessage(
+          chatId,
+          t(locale, 'bid_prompt_sealed', { item: auction.itemName, amount: String(auction.startingPrice) }),
+          {
+            parse_mode: 'Markdown',
+          }
+        );
       }
 
       if (auction.auctionType === 'reverse') {
@@ -246,15 +251,19 @@ export const setupCommands = () => {
     }
 
     const botProfile = await bot.getMe();
-    return bot.sendMessage(chatId, `${t(locale, 'search_results')}\n\n${auctions.map(formatAuctionListItem).join('\n\n')}`, {
-      parse_mode: 'Markdown',
-      reply_markup: {
-        inline_keyboard: auctions.map((auction) => [
-          { text: 'Watch Auction', callback_data: `watch_toggle_${auction._id}` },
-          { text: 'Open Bid', url: `https://t.me/${botProfile.username}?start=bid_${auction._id}` },
-        ]),
-      },
-    });
+    return bot.sendMessage(
+      chatId,
+      `${t(locale, 'search_results')}\n\n${auctions.map(formatAuctionListItem).join('\n\n')}`,
+      {
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: auctions.map((auction) => [
+            { text: 'Watch Auction', callback_data: `watch_toggle_${auction._id}` },
+            { text: 'Open Bid', url: `https://t.me/${botProfile.username}?start=bid_${auction._id}` },
+          ]),
+        },
+      }
+    );
   });
 
   bot.onText(/\/watchlist/, async (msg) => {
@@ -269,9 +278,13 @@ export const setupCommands = () => {
         return bot.sendMessage(chatId, t(locale, 'watchlist_empty'));
       }
 
-      return bot.sendMessage(chatId, `${t(locale, 'watchlist_title')}\n\n${items.slice(0, 8).map(formatAuctionListItem).join('\n\n')}`, {
-        parse_mode: 'Markdown',
-      });
+      return bot.sendMessage(
+        chatId,
+        `${t(locale, 'watchlist_title')}\n\n${items.slice(0, 8).map(formatAuctionListItem).join('\n\n')}`,
+        {
+          parse_mode: 'Markdown',
+        }
+      );
     } catch (error) {
       return bot.sendMessage(chatId, error.message || 'Could not load your watchlist.');
     }
@@ -288,9 +301,13 @@ export const setupCommands = () => {
     }
 
     if (!match?.[1]) {
-      return bot.sendMessage(chatId, `${t(user.language, 'language_prompt')}\n\n${t(user.language, 'language_usage')}`, {
-        reply_markup: languageKeyboard,
-      });
+      return bot.sendMessage(
+        chatId,
+        `${t(user.language, 'language_prompt')}\n\n${t(user.language, 'language_usage')}`,
+        {
+          reply_markup: languageKeyboard,
+        }
+      );
     }
 
     user.language = requestedLanguage;
@@ -347,7 +364,9 @@ export const setupCommands = () => {
       }
 
       if (state.step === 'post_type') {
-        const auctionType = String(text || '').trim().toLowerCase();
+        const auctionType = String(text || '')
+          .trim()
+          .toLowerCase();
         if (!auctionTypes.includes(auctionType)) {
           return bot.sendMessage(chatId, t(state.locale, 'post_type_invalid'));
         }
@@ -436,7 +455,10 @@ export const setupCommands = () => {
         } else {
           const reservePrice = Number(text);
           if (Number.isNaN(reservePrice) || reservePrice < state.startingPrice) {
-            return bot.sendMessage(chatId, `Reserve price must be at least ${state.startingPrice} ETB, or type 'skip'.`);
+            return bot.sendMessage(
+              chatId,
+              `Reserve price must be at least ${state.startingPrice} ETB, or type 'skip'.`
+            );
           }
 
           stateManager.update(chatId, {
@@ -485,7 +507,10 @@ export const setupCommands = () => {
         } else {
           const bidIncrement = Number(text);
           if (Number.isNaN(bidIncrement) || bidIncrement <= 0) {
-            return bot.sendMessage(chatId, "Please enter a valid positive number for the bid increment, or type 'skip'.");
+            return bot.sendMessage(
+              chatId,
+              "Please enter a valid positive number for the bid increment, or type 'skip'."
+            );
           }
 
           stateManager.update(chatId, { step: 'post_duration', bidIncrement });
@@ -558,7 +583,11 @@ export const setupCommands = () => {
             },
           ];
 
-          stateManager.update(chatId, { mediaAssets, imageUrl: state.imageUrl || imageUrl, videoUrl: state.videoUrl || videoUrl });
+          stateManager.update(chatId, {
+            mediaAssets,
+            imageUrl: state.imageUrl || imageUrl,
+            videoUrl: state.videoUrl || videoUrl,
+          });
           return bot.sendMessage(chatId, t(state.locale, 'media_added'));
         }
 
@@ -586,7 +615,10 @@ export const setupCommands = () => {
           mediaAssets: currentAssets,
         });
 
-        await bot.sendMessage(chatId, 'Your auction has been submitted for admin review. We will notify you once it is approved or rejected.');
+        await bot.sendMessage(
+          chatId,
+          'Your auction has been submitted for admin review. We will notify you once it is approved or rejected.'
+        );
 
         const seller = await User.findById(state.userId);
         await notifyAdminUsers(
@@ -614,7 +646,11 @@ export const setupCommands = () => {
         const bidder = await User.findById(state.userId);
         const locale = userLanguage(bidder);
 
-        if (Number.isNaN(amount) || amount <= 0 || (maxAutoBid !== null && (Number.isNaN(maxAutoBid) || maxAutoBid <= 0))) {
+        if (
+          Number.isNaN(amount) ||
+          amount <= 0 ||
+          (maxAutoBid !== null && (Number.isNaN(maxAutoBid) || maxAutoBid <= 0))
+        ) {
           return bot.sendMessage(chatId, t(locale, 'bid_invalid'));
         }
 
@@ -643,17 +679,17 @@ export const setupCommands = () => {
                   extended: result.extended ? t(locale, 'bid_extended') : '',
                 })
               : maxAutoBid !== null
-              ? t(locale, 'bid_received_auto', {
-                  amount: String(amount),
-                  max: String(maxAutoBid),
-                  current: String(result.auction.currentBid),
-                  extended: result.extended ? t(locale, 'bid_extended') : '',
-                })
-              : t(locale, 'bid_received', {
-                  amount: String(amount),
-                  current: String(result.auction.currentBid),
-                  extended: result.extended ? t(locale, 'bid_extended') : '',
-                })
+                ? t(locale, 'bid_received_auto', {
+                    amount: String(amount),
+                    max: String(maxAutoBid),
+                    current: String(result.auction.currentBid),
+                    extended: result.extended ? t(locale, 'bid_extended') : '',
+                  })
+                : t(locale, 'bid_received', {
+                    amount: String(amount),
+                    current: String(result.auction.currentBid),
+                    extended: result.extended ? t(locale, 'bid_extended') : '',
+                  })
           );
           stateManager.delete(chatId);
         } catch (error) {

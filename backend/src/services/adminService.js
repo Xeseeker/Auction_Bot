@@ -158,7 +158,10 @@ export const listUsersForAdmin = async ({ search, role, banned, sellerApproval, 
   const query = buildUserQuery({ search, role, banned, sellerApproval });
 
   const [items, total] = await Promise.all([
-    User.find(query).sort({ createdAt: -1 }).skip((currentPage - 1) * perPage).limit(perPage),
+    User.find(query)
+      .sort({ createdAt: -1 })
+      .skip((currentPage - 1) * perPage)
+      .limit(perPage),
     User.countDocuments(query),
   ]);
 
@@ -222,8 +225,16 @@ export const updateSellerApprovalStatus = async (userId, { approved, reason = ''
       : `Your seller approval request was rejected by ${adminLabel}.${reason ? `\nReason: ${reason}` : ''}`
   );
 
-  emitPlatformUpdate('users:update', { type: 'seller:approval-reviewed', userId: String(user._id), approved: Boolean(approved) });
-  emitPlatformUpdate('dashboard:update', { type: 'seller:approval-reviewed', userId: String(user._id), approved: Boolean(approved) });
+  emitPlatformUpdate('users:update', {
+    type: 'seller:approval-reviewed',
+    userId: String(user._id),
+    approved: Boolean(approved),
+  });
+  emitPlatformUpdate('dashboard:update', {
+    type: 'seller:approval-reviewed',
+    userId: String(user._id),
+    approved: Boolean(approved),
+  });
 
   return user;
 };

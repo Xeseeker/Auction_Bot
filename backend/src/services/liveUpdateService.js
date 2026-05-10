@@ -39,4 +39,3 @@ export const emitAuctionRoomUpdate = (auctionId, event, payload = {}) => {
   ioInstance.to(`auction:${auctionId}`).emit(event, payload);
   return true;
 };
-

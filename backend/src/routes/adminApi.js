@@ -120,7 +120,10 @@ router.get('/auctions/:id/media/:mediaId', requireAdminApi, async (req, res) => 
 
     const mediaBuffer = Buffer.from(await response.arrayBuffer());
     res.setHeader('Cache-Control', 'private, max-age=300');
-    res.setHeader('Content-Type', response.headers.get('content-type') || (mediaAsset.kind === 'video' ? 'video/mp4' : 'image/jpeg'));
+    res.setHeader(
+      'Content-Type',
+      response.headers.get('content-type') || (mediaAsset.kind === 'video' ? 'video/mp4' : 'image/jpeg')
+    );
     return res.send(mediaBuffer);
   } catch (error) {
     return handleError(res, error);

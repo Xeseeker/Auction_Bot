@@ -11,13 +11,14 @@ const getAuctionType = (auction) => auction.auctionType || 'standard';
 const isDutchAuction = (auction) => getAuctionType(auction) === 'dutch';
 const isSealedBidAuction = (auction) => getAuctionType(auction) === 'sealed_bid';
 const isReverseAuction = (auction) => getAuctionType(auction) === 'reverse';
-const escapeTelegramMarkdown = (value) =>
-  String(value ?? '').replace(/([-_*[\]()~`>#+=|{}.!\\])/g, '\\$1');
+const escapeTelegramMarkdown = (value) => String(value ?? '').replace(/([-_*[\]()~`>#+=|{}.!\\])/g, '\\$1');
 const hasMediaAssets = (auction) => Array.isArray(auction.mediaAssets) && auction.mediaAssets.length > 0;
 const getPrimaryMediaAsset = (auction) => (hasMediaAssets(auction) ? auction.mediaAssets[0] : null);
 const getMediaSource = (asset) => asset?.fileId || asset?.sourceUrl || null;
 const getAuctionStartingValue = (auction) =>
-  isDutchAuction(auction) ? Number(auction.startingPrice || auction.currentBid || 0) : Number(auction.startingPrice || 0);
+  isDutchAuction(auction)
+    ? Number(auction.startingPrice || auction.currentBid || 0)
+    : Number(auction.startingPrice || 0);
 const normalizeMediaAssetInput = (mediaAssets = []) =>
   (Array.isArray(mediaAssets) ? mediaAssets : [])
     .map((asset) => ({
@@ -138,7 +139,10 @@ const resolveAuctionBidState = (auction, profiles) => {
     return {
       leader,
       runnerUp: null,
-      currentBid: Math.max(Number(auction.currentBid) || Number(auction.startingPrice) || 0, leader.highestCommittedAmount),
+      currentBid: Math.max(
+        Number(auction.currentBid) || Number(auction.startingPrice) || 0,
+        leader.highestCommittedAmount
+      ),
     };
   }
 
@@ -211,7 +215,9 @@ export const formatAuctionText = (auction, seller, highestBidder = null) => {
   const category = escapeTelegramMarkdown(auction.category);
   const tags = auction.tags?.length ? auction.tags.map((tag) => escapeTelegramMarkdown(tag)).join(', ') : '';
   const auctionType = escapeTelegramMarkdown(String(auction.auctionType || 'standard').replace(/_/g, ' '));
-  const sellerLabel = escapeTelegramMarkdown(seller.username ? `@${seller.username}` : seller.firstName || 'Unknown seller');
+  const sellerLabel = escapeTelegramMarkdown(
+    seller.username ? `@${seller.username}` : seller.firstName || 'Unknown seller'
+  );
   let text = `*NEW AUCTION*\n\n`;
   text += `*Item:* ${itemName}\n`;
   text += `*Description:* ${description}\n\n`;
@@ -244,10 +250,14 @@ export const formatAuctionText = (auction, seller, highestBidder = null) => {
   if (isSealedBidAuction(auction)) {
     text += `*Sealed Bids:* ${auction.bidCount || 0} received\n`;
   } else if (isReverseAuction(auction) && highestBidder) {
-    const username = escapeTelegramMarkdown(highestBidder.username ? `@${highestBidder.username}` : highestBidder.firstName || 'Unknown bidder');
+    const username = escapeTelegramMarkdown(
+      highestBidder.username ? `@${highestBidder.username}` : highestBidder.firstName || 'Unknown bidder'
+    );
     text += `*Current Lowest Bid:* ${auction.currentBid} ETB (by ${username})\n`;
   } else if (highestBidder) {
-    const username = escapeTelegramMarkdown(highestBidder.username ? `@${highestBidder.username}` : highestBidder.firstName || 'Unknown bidder');
+    const username = escapeTelegramMarkdown(
+      highestBidder.username ? `@${highestBidder.username}` : highestBidder.firstName || 'Unknown bidder'
+    );
     text += `*Current Highest Bid:* ${displayAmount} ETB (by ${username})\n`;
   } else if (isDutchAuction(auction)) {
     text += `*Current Price:* ${displayAmount} ETB\n`;
@@ -741,10 +751,14 @@ export const approveAuctionByAdmin = async (auctionId, { adminLabel = 'Admin Pan
     auction.seller?.telegramId,
     `Your auction "${auction.itemName}" was approved by ${adminLabel} and is now live in the channel.`
   );
-  await notifyAuctionWatchers(auction, `Watchlist update: *${escapeTelegramMarkdown(auction.itemName)}* is now live for bidding.`, {
-    excludeTelegramIds: [auction.seller?.telegramId],
-    replyMarkup: await buildAuctionReplyMarkup(auction),
-  });
+  await notifyAuctionWatchers(
+    auction,
+    `Watchlist update: *${escapeTelegramMarkdown(auction.itemName)}* is now live for bidding.`,
+    {
+      excludeTelegramIds: [auction.seller?.telegramId],
+      replyMarkup: await buildAuctionReplyMarkup(auction),
+    }
+  );
   emitAuctionLifecycleUpdate('auction:approved', auction);
 
   return Auction.findById(auctionId).populate('seller highestBidder');
@@ -910,7 +924,9 @@ export const placeBidForAuction = async (auctionId, bidder, { amount, maxAutoBid
     }).sort({ amount: -1, createdAt: -1 });
 
     if (existingSealedBid && Number(amount) <= Number(existingSealedBid.amount)) {
-      const error = new Error(`Your new sealed bid must be higher than your current sealed bid of ${existingSealedBid.amount} ETB.`);
+      const error = new Error(
+        `Your new sealed bid must be higher than your current sealed bid of ${existingSealedBid.amount} ETB.`
+      );
       error.statusCode = 400;
       throw error;
     }
@@ -1071,8 +1087,7 @@ export const placeBidForAuction = async (auctionId, bidder, { amount, maxAutoBid
   await auction.populate('seller highestBidder');
 
   const leaderChanged =
-    Boolean(previousHighestBidder?._id) &&
-    String(previousHighestBidder._id) !== String(auction.highestBidder?._id);
+    Boolean(previousHighestBidder?._id) && String(previousHighestBidder._id) !== String(auction.highestBidder?._id);
 
   if (leaderChanged && previousHighestBidder?.telegramId) {
     const bidUrl = await getAuctionDeepLink('bid', auction._id);

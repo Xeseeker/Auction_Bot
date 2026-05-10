@@ -19,10 +19,12 @@ const dictionary = {
       '*Bidding on:* {item}\n\nCurrent Position: {amount} ETB\n{hint}\n\nSend your bid as `amount` or `amount/max` to enable auto-bidding when supported.\nExample: `1800/2400`',
     bid_prompt_sealed:
       '*Sealed Bid:* {item}\n\nStarting Price: {amount} ETB\nYour bid stays hidden until the auction closes.\n\nSend your sealed bid as `amount`.',
-    bid_received_sealed: 'Sealed bid received at {amount} ETB.\nYour bid remains hidden until the auction ends.{extended}',
+    bid_received_sealed:
+      'Sealed bid received at {amount} ETB.\nYour bid remains hidden until the auction ends.{extended}',
     bid_prompt_reverse:
       '*Reverse Auction:* {item}\n\nCurrent Lowest Bid: {amount} ETB\nBid at least {step} ETB lower to take the lead.\n\nSend your bid as `amount`.',
-    dutch_prompt: '*Dutch Auction:* {item}\n\nCurrent Price: {amount} ETB\nTap below to accept the current price before it drops again.',
+    dutch_prompt:
+      '*Dutch Auction:* {item}\n\nCurrent Price: {amount} ETB\nTap below to accept the current price before it drops again.',
     bid_invalid: 'Please enter a valid bid like 1800 or 1800/2400.',
     bid_received: 'Bid received at {amount} ETB.\nCurrent standing price: {current} ETB.{extended}',
     bid_received_auto:
@@ -32,7 +34,8 @@ const dictionary = {
     watch_removed: 'Removed {item} from watchlist.',
     media_prompt:
       'Almost done. Send one or more *photos or videos* of the item. Type `done` when finished or `skip` to continue without media.',
-    media_added: 'Media added. Send another file, type `done`, or type `skip` if you want to finish with what you have.',
+    media_added:
+      'Media added. Send another file, type `done`, or type `skip` if you want to finish with what you have.',
     media_invalid: 'Please send a photo, a video, `done`, or `skip`.',
     post_type_prompt: 'Choose the auction type: standard, dutch, sealed_bid, or reverse.',
     post_type_invalid: 'Please choose one of: standard, dutch, sealed_bid, reverse.',
@@ -60,10 +63,12 @@ const dictionary = {
       '*Unabid kwenye:* {item}\n\nBei ya sasa: {amount} ETB\n{hint}\n\nTuma zabuni yako kama `amount` au `amount/max` kuwezesha auto-bid inapowezekana.\nMfano: `1800/2400`',
     bid_prompt_sealed:
       '*Zabuni ya Siri:* {item}\n\nBei ya kuanzia: {amount} ETB\nZabuni yako itabaki siri hadi mnada uishe.\n\nTuma zabuni yako kama `amount`.',
-    bid_received_sealed: 'Zabuni ya siri imepokelewa kwa {amount} ETB.\nZabuni yako itabaki siri hadi mnada uishe.{extended}',
+    bid_received_sealed:
+      'Zabuni ya siri imepokelewa kwa {amount} ETB.\nZabuni yako itabaki siri hadi mnada uishe.{extended}',
     bid_prompt_reverse:
       '*Mnada wa Reverse:* {item}\n\nBei ya chini ya sasa: {amount} ETB\nPunguza angalau {step} ETB ili kuongoza.\n\nTuma zabuni yako kama `amount`.',
-    dutch_prompt: '*Mnada wa Dutch:* {item}\n\nBei ya sasa: {amount} ETB\nBofya hapa chini kukubali bei ya sasa kabla haijashuka tena.',
+    dutch_prompt:
+      '*Mnada wa Dutch:* {item}\n\nBei ya sasa: {amount} ETB\nBofya hapa chini kukubali bei ya sasa kabla haijashuka tena.',
     bid_invalid: 'Tafadhali weka zabuni halali kama 1800 au 1800/2400.',
     bid_received: 'Zabuni imepokelewa kwa {amount} ETB.\nBei ya sasa ni {current} ETB.{extended}',
     bid_received_auto:
@@ -106,13 +111,11 @@ const dictionary = {
     dutch_prompt: '*Dutch ጨረታ:* {item}\n\nአሁን ያለው ዋጋ: {amount} ETB\nዋጋው እንደገና ከመቀነሱ በፊት በታች ያለውን አዝራር ይጫኑ።',
     bid_invalid: 'እባክዎ እንደ 1800 ወይም 1800/2400 ያለ ትክክለኛ ብድር ያስገቡ።',
     bid_received: 'ብድርዎ {amount} ETB ተቀብሏል።\nአሁን ያለው ዋጋ {current} ETB ነው።{extended}',
-    bid_received_auto:
-      'ብድርዎ {amount} ETB እስከ {max} ETB auto-bid ጋር ተቀብሏል።\nአሁን ያለው ዋጋ {current} ETB ነው።{extended}',
+    bid_received_auto: 'ብድርዎ {amount} ETB እስከ {max} ETB auto-bid ጋር ተቀብሏል።\nአሁን ያለው ዋጋ {current} ETB ነው።{extended}',
     bid_extended: '\nበመጨረሻ ጊዜ ብድር ስለተገባ የጨረታው ጊዜ በ5 ደቂቃ ተራዘመ።',
     watch_added: '{item} እየተከታተሉት ነው።',
     watch_removed: '{item} ከ watchlist ተወግዷል።',
-    media_prompt:
-      'ማጠናቀቅ አቅርበዋል። ከእቃው *ፎቶ ወይም ቪዲዮ* አንድ ወይም ከዚያ በላይ ይላኩ። ሲጨርሱ `done` ይበሉ ወይም ያለ media `skip` ይበሉ።',
+    media_prompt: 'ማጠናቀቅ አቅርበዋል። ከእቃው *ፎቶ ወይም ቪዲዮ* አንድ ወይም ከዚያ በላይ ይላኩ። ሲጨርሱ `done` ይበሉ ወይም ያለ media `skip` ይበሉ።',
     media_added: 'Media ታክሏል። ሌላ ፋይል ይላኩ፣ `done` ይበሉ ወይም `skip` ይበሉ።',
     media_invalid: 'እባክዎ ፎቶ፣ ቪዲዮ፣ `done` ወይም `skip` ይላኩ።',
     post_type_prompt: 'የጨረታ አይነቱን ይምረጡ: standard, dutch, sealed_bid, ወይም reverse።',
