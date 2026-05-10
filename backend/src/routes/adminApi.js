@@ -1,6 +1,7 @@
 import express from 'express';
 import bot from '../bot/instance.js';
 import { authenticateAdminCredentials, requireAdminApi } from '../middleware/adminAuth.js';
+import { validateObjectIdParam } from '../middleware/validateObjectId.js';
 import Auction from '../models/Auction.js';
 import {
   getDashboardStats,
@@ -72,7 +73,7 @@ router.get('/auctions', requireAdminApi, async (req, res) => {
   }
 });
 
-router.get('/auctions/:id', requireAdminApi, async (req, res) => {
+router.get('/auctions/:id', requireAdminApi, validateObjectIdParam('id'), async (req, res) => {
   try {
     const result = await getAuctionAdminDetails(req.params.id);
     if (!result) {
@@ -85,7 +86,7 @@ router.get('/auctions/:id', requireAdminApi, async (req, res) => {
   }
 });
 
-router.get('/auctions/:id/media/:mediaId', requireAdminApi, async (req, res) => {
+router.get('/auctions/:id/media/:mediaId', requireAdminApi, validateObjectIdParam('id'), async (req, res) => {
   try {
     const auction = await Auction.findById(req.params.id).select('mediaAssets imageUrl videoUrl');
     if (!auction) {
@@ -130,7 +131,7 @@ router.get('/auctions/:id/media/:mediaId', requireAdminApi, async (req, res) => 
   }
 });
 
-router.put('/auctions/:id/cancel', requireAdminApi, async (req, res) => {
+router.put('/auctions/:id/cancel', requireAdminApi, validateObjectIdParam('id'), async (req, res) => {
   try {
     const auction = await cancelAuctionByAdmin(req.params.id, {
       reason: req.body?.reason || '',
@@ -143,7 +144,7 @@ router.put('/auctions/:id/cancel', requireAdminApi, async (req, res) => {
   }
 });
 
-router.put('/auctions/:id/approve', requireAdminApi, async (req, res) => {
+router.put('/auctions/:id/approve', requireAdminApi, validateObjectIdParam('id'), async (req, res) => {
   try {
     const auction = await approveAuctionByAdmin(req.params.id, {
       adminLabel: req.session.adminUser?.username || 'Admin Panel',
@@ -155,7 +156,7 @@ router.put('/auctions/:id/approve', requireAdminApi, async (req, res) => {
   }
 });
 
-router.put('/auctions/:id/reject', requireAdminApi, async (req, res) => {
+router.put('/auctions/:id/reject', requireAdminApi, validateObjectIdParam('id'), async (req, res) => {
   try {
     const auction = await rejectAuctionByAdmin(req.params.id, {
       reason: req.body?.reason || '',
@@ -184,7 +185,7 @@ router.get('/users/pending-approvals', requireAdminApi, async (req, res) => {
   }
 });
 
-router.put('/users/:id/ban', requireAdminApi, async (req, res) => {
+router.put('/users/:id/ban', requireAdminApi, validateObjectIdParam('id'), async (req, res) => {
   try {
     const user = await updateUserBanStatus(req.params.id, {
       banned: req.body?.banned,
@@ -198,7 +199,7 @@ router.put('/users/:id/ban', requireAdminApi, async (req, res) => {
   }
 });
 
-router.put('/users/:id/seller-approval', requireAdminApi, async (req, res) => {
+router.put('/users/:id/seller-approval', requireAdminApi, validateObjectIdParam('id'), async (req, res) => {
   try {
     const user = await updateSellerApprovalStatus(req.params.id, {
       approved: req.body?.approved,
