@@ -31,15 +31,15 @@ export function UsersPage({ users, loading, error, onSearch, onBanToggle, onAppr
         title={t('accounts_title')}
         subtitle={t('accounts_subtitle')}
         actions={
-          <form className="grid w-full min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(220px,1fr)_140px_160px_180px_auto]" onSubmit={submit}>
+          <form className="flex w-full min-w-0 flex-wrap items-center gap-2" onSubmit={submit}>
             <input
-              className="field"
+              className="field h-10 w-full px-3 py-2 text-xs sm:w-56 lg:w-64"
               onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
               placeholder={t('user_search_placeholder')}
               value={filters.search}
             />
             <select
-              className="field"
+              className="field h-10 w-[calc(50%-0.25rem)] min-w-28 px-3 py-2 text-xs sm:w-32"
               onChange={(event) => setFilters((current) => ({ ...current, role: event.target.value }))}
               value={filters.role}
             >
@@ -48,7 +48,7 @@ export function UsersPage({ users, loading, error, onSearch, onBanToggle, onAppr
               <option value="admin">{t('status_admin')}</option>
             </select>
             <select
-              className="field"
+              className="field h-10 w-[calc(50%-0.25rem)] min-w-36 px-3 py-2 text-xs sm:w-40"
               onChange={(event) => setFilters((current) => ({ ...current, sellerApproval: event.target.value }))}
               value={filters.sellerApproval}
             >
@@ -59,7 +59,7 @@ export function UsersPage({ users, loading, error, onSearch, onBanToggle, onAppr
               <option value="not_requested">{t('status_not_requested')}</option>
             </select>
             <select
-              className="field"
+              className="field h-10 w-[calc(50%-0.25rem)] min-w-32 px-3 py-2 text-xs sm:w-36"
               onChange={(event) => setFilters((current) => ({ ...current, banned: event.target.value }))}
               value={filters.banned}
             >
@@ -67,7 +67,7 @@ export function UsersPage({ users, loading, error, onSearch, onBanToggle, onAppr
               <option value="false">{t('active_only')}</option>
               <option value="true">{t('banned_only')}</option>
             </select>
-            <button className="btn-primary sm:col-span-2 xl:col-span-1" disabled={loading} type="submit">
+            <button className="btn-primary h-10 w-auto px-4 py-2 text-xs" disabled={loading} type="submit">
               {loading ? t('loading') : t('apply')}
             </button>
           </form>
