@@ -12,7 +12,7 @@ export function AppShell({ adminUser, onLogout, socketConnected, children }) {
 
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[290px_minmax(0,1fr)]">
-      <aside className="border-b border-white/10 bg-ink-900/95 p-6 lg:min-h-screen lg:border-b-0 lg:border-r">
+      <aside className="border-b border-white/10 bg-ink-900/95 p-6 lg:sticky lg:top-0 lg:h-screen lg:overflow-hidden lg:border-b-0 lg:border-r">
         <p className="text-xs uppercase tracking-[0.3em] text-tide-300">{t('control_center')}</p>
         <h1 className="mt-3 font-display text-3xl font-bold text-white">{t('app_title')}</h1>
         <p className="mt-3 max-w-xs text-sm leading-6 text-sand-100/60">
