@@ -11,7 +11,7 @@ const request = async (path, options = {}) => {
   let payload = null;
   try {
     payload = await response.json();
-  } catch (error) {
+  } catch {
     payload = null;
   }
 

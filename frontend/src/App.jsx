@@ -202,7 +202,7 @@ export default function App() {
   const logout = async () => {
     try {
       await adminApi.logout();
-    } catch (error) {
+    } catch {
       // Ignore logout API errors and clear local auth state regardless.
     } finally {
       setAdminUser(null);
