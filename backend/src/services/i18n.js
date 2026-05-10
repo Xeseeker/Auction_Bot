@@ -44,6 +44,8 @@ const dictionary = {
     post_dutch_interval: 'Enter the Dutch auction drop interval in minutes:',
     cancel_done: 'Current action cancelled. You can start again whenever you are ready.',
     cancel_no_state: 'Nothing is in progress right now.',
+    help_text:
+      '*Auction Bot Help*\n\n/start - Register or open a bid/buy link\n/post - Submit an auction for admin review\n/search keyword - Find active auctions\n/watchlist - View watched auctions\n/language - Change language\n/cancel - Cancel the current action',
   },
   sw: {
     language_changed: 'Lugha imebadilishwa kuwa Kiswahili.',
@@ -89,6 +91,8 @@ const dictionary = {
     post_dutch_interval: 'Weka muda wa kupungua kwa dakika:',
     cancel_done: 'Kitendo cha sasa kimeghairiwa. Unaweza kuanza tena ukiwa tayari.',
     cancel_no_state: 'Hakuna kinachoendelea kwa sasa.',
+    help_text:
+      '*Msaada wa Auction Bot*\n\n/start - Jisajili au fungua kiungo cha bid/buy\n/post - Tuma mnada kwa ukaguzi\n/search neno - Tafuta minada hai\n/watchlist - Ona minada unayofuatilia\n/language - Badili lugha\n/cancel - Ghairi kitendo cha sasa',
   },
   am: {
     language_changed: 'ቋንቋው ወደ አማርኛ ተቀይሯል።',

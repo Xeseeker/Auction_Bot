@@ -266,6 +266,14 @@ export const setupCommands = () => {
     );
   });
 
+  bot.onText(/\/help/, async (msg) => {
+    const chatId = msg.chat.id;
+    const user = await User.findOne({ telegramId: String(msg.from.id) });
+    const locale = userLanguage(user, msg.from.language_code);
+
+    return bot.sendMessage(chatId, t(locale, 'help_text'), { parse_mode: 'Markdown' });
+  });
+
   bot.onText(/\/watchlist/, async (msg) => {
     const chatId = msg.chat.id;
     const telegramId = String(msg.from.id);
