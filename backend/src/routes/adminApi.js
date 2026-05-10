@@ -3,6 +3,7 @@ import bot from '../bot/instance.js';
 import { authenticateAdminCredentials, requireAdminApi } from '../middleware/adminAuth.js';
 import { validateObjectIdParam } from '../middleware/validateObjectId.js';
 import Auction from '../models/Auction.js';
+import { listAuditLogs } from '../services/auditService.js';
 import {
   getDashboardStats,
   getDetailedStats,
@@ -224,6 +225,14 @@ router.get('/bids', requireAdminApi, async (req, res) => {
 router.get('/stats', requireAdminApi, async (req, res) => {
   try {
     return res.json(await getDetailedStats());
+  } catch (error) {
+    return handleError(res, error);
+  }
+});
+
+router.get('/audit-logs', requireAdminApi, async (req, res) => {
+  try {
+    return res.json(await listAuditLogs(req.query));
   } catch (error) {
     return handleError(res, error);
   }
