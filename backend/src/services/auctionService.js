@@ -12,7 +12,7 @@ const isDutchAuction = (auction) => getAuctionType(auction) === 'dutch';
 const isSealedBidAuction = (auction) => getAuctionType(auction) === 'sealed_bid';
 const isReverseAuction = (auction) => getAuctionType(auction) === 'reverse';
 const escapeTelegramMarkdown = (value) =>
-  String(value ?? '').replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
+  String(value ?? '').replace(/([-_*[\]()~`>#+=|{}.!\\])/g, '\\$1');
 const hasMediaAssets = (auction) => Array.isArray(auction.mediaAssets) && auction.mediaAssets.length > 0;
 const getPrimaryMediaAsset = (auction) => (hasMediaAssets(auction) ? auction.mediaAssets[0] : null);
 const getMediaSource = (asset) => asset?.fileId || asset?.sourceUrl || null;
