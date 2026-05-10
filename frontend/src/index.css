@@ -29,6 +29,11 @@
     @apply min-w-0 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-sand-50 outline-none transition placeholder:text-sand-100/35 focus:border-tide-400 focus:ring-2 focus:ring-tide-400/30;
   }
 
+  select.field option {
+    background: #ffffff;
+    color: #0c111d;
+  }
+
   .btn-primary {
     @apply inline-flex items-center justify-center whitespace-nowrap rounded-full bg-tide-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-tide-400 disabled:cursor-not-allowed disabled:opacity-60;
   }
