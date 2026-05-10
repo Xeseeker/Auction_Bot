@@ -1,20 +1,9 @@
 import Auction from '../models/Auction.js';
 import Bid from '../models/Bid.js';
 import User from '../models/User.js';
+import { createPagination, parsePagination } from '../utils/pagination.js';
 import { emitPlatformUpdate } from './liveUpdateService.js';
 import { sendBotMessage } from './notificationService.js';
-
-const toPositiveInt = (value, fallback) => {
-  const parsed = Number.parseInt(value, 10);
-  return Number.isNaN(parsed) || parsed <= 0 ? fallback : parsed;
-};
-
-const createPagination = (page, limit, total) => ({
-  page,
-  limit,
-  total,
-  pages: Math.max(Math.ceil(total / limit), 1),
-});
 
 const buildUserQuery = ({ search = '', role, banned, sellerApproval }) => {
   const query = {};
@@ -153,15 +142,11 @@ export const getDashboardStats = async () => {
 };
 
 export const listUsersForAdmin = async ({ search, role, banned, sellerApproval, page, limit }) => {
-  const currentPage = toPositiveInt(page, 1);
-  const perPage = Math.min(toPositiveInt(limit, 20), 100);
+  const { currentPage, perPage, skip } = parsePagination({ page, limit });
   const query = buildUserQuery({ search, role, banned, sellerApproval });
 
   const [items, total] = await Promise.all([
-    User.find(query)
-      .sort({ createdAt: -1 })
-      .skip((currentPage - 1) * perPage)
-      .limit(perPage),
+    User.find(query).sort({ createdAt: -1 }).skip(skip).limit(perPage),
     User.countDocuments(query),
   ]);
 
@@ -271,8 +256,7 @@ export const requestSellerApproval = async (telegramId) => {
 };
 
 export const listBidsForAdmin = async ({ auctionId, bidderId, page, limit }) => {
-  const currentPage = toPositiveInt(page, 1);
-  const perPage = Math.min(toPositiveInt(limit, 20), 100);
+  const { currentPage, perPage, skip } = parsePagination({ page, limit });
   const query = buildBidQuery({ auctionId, bidderId });
 
   const [items, total] = await Promise.all([
@@ -280,7 +264,7 @@ export const listBidsForAdmin = async ({ auctionId, bidderId, page, limit }) => 
       .populate('auction', 'itemName status')
       .populate('bidder', 'username firstName lastName telegramId')
       .sort({ createdAt: -1 })
-      .skip((currentPage - 1) * perPage)
+      .skip(skip)
       .limit(perPage),
     Bid.countDocuments(query),
   ]);

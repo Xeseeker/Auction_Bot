@@ -3,6 +3,7 @@ import { config } from '../config/env.js';
 import Auction from '../models/Auction.js';
 import Bid from '../models/Bid.js';
 import User from '../models/User.js';
+import { createPagination, parsePagination } from '../utils/pagination.js';
 import { emitAuctionRoomUpdate, emitPlatformUpdate } from './liveUpdateService.js';
 import { sendBotMessage } from './notificationService.js';
 
@@ -630,9 +631,7 @@ export const listAuctionsForAdmin = async ({ search = '', status, page = 1, limi
     ];
   }
 
-  const currentPage = Math.max(Number(page) || 1, 1);
-  const perPage = Math.min(Math.max(Number(limit) || 20, 1), 100);
-  const skip = (currentPage - 1) * perPage;
+  const { currentPage, perPage, skip } = parsePagination({ page, limit });
 
   const [items, total] = await Promise.all([
     Auction.find(query)
@@ -648,12 +647,7 @@ export const listAuctionsForAdmin = async ({ search = '', status, page = 1, limi
 
   return {
     items,
-    pagination: {
-      page: currentPage,
-      limit: perPage,
-      total,
-      pages: Math.max(Math.ceil(total / perPage), 1),
-    },
+    pagination: createPagination(currentPage, perPage, total),
   };
 };
 
