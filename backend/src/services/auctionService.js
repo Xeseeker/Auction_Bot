@@ -4,6 +4,7 @@ import Auction from '../models/Auction.js';
 import Bid from '../models/Bid.js';
 import User from '../models/User.js';
 import { createPagination, parsePagination } from '../utils/pagination.js';
+import { recordAuditLog } from './auditService.js';
 import { emitAuctionRoomUpdate, emitPlatformUpdate } from './liveUpdateService.js';
 import { sendBotMessage } from './notificationService.js';
 
@@ -710,6 +711,15 @@ export const cancelAuctionByAdmin = async (auctionId, { reason = '', adminLabel 
   auction.status = 'cancelled';
   await auction.save();
 
+  await recordAuditLog({
+    actor: adminLabel,
+    action: 'auction.cancel',
+    entityType: 'auction',
+    entityId: auction._id,
+    reason,
+    metadata: { sellerId: auction.seller?._id },
+  });
+
   await notifyAuctionCancelled(auction, { reason, adminLabel });
   emitAuctionLifecycleUpdate('auction:cancelled', auction);
   return auction;
@@ -731,6 +741,15 @@ export const approveAuctionByAdmin = async (auctionId, { adminLabel = 'Admin Pan
 
   auction.status = 'active';
   await auction.save();
+
+  await recordAuditLog({
+    actor: adminLabel,
+    action: 'auction.approve',
+    entityType: 'auction',
+    entityId: auction._id,
+    metadata: { sellerId: auction.seller?._id },
+  });
+
   await postAuctionToChannel(auction._id);
   await sendBotMessage(
     auction.seller?.telegramId,
@@ -765,6 +784,16 @@ export const rejectAuctionByAdmin = async (auctionId, { reason = '', adminLabel 
 
   auction.status = 'cancelled';
   await auction.save();
+
+  await recordAuditLog({
+    actor: adminLabel,
+    action: 'auction.reject',
+    entityType: 'auction',
+    entityId: auction._id,
+    reason,
+    metadata: { sellerId: auction.seller?._id },
+  });
+
   await sendBotMessage(
     auction.seller?.telegramId,
     `Your auction "${auction.itemName}" was rejected by ${adminLabel}.${reason ? `\nReason: ${reason}` : ''}`

@@ -2,6 +2,7 @@ import Auction from '../models/Auction.js';
 import Bid from '../models/Bid.js';
 import User from '../models/User.js';
 import { createPagination, parsePagination } from '../utils/pagination.js';
+import { recordAuditLog } from './auditService.js';
 import { emitPlatformUpdate } from './liveUpdateService.js';
 import { sendBotMessage } from './notificationService.js';
 
@@ -172,6 +173,15 @@ export const updateUserBanStatus = async (userId, { banned, reason = '', adminLa
   user.banReason = user.banned ? reason : '';
   await user.save();
 
+  await recordAuditLog({
+    actor: adminLabel,
+    action: user.banned ? 'user.ban' : 'user.unban',
+    entityType: 'user',
+    entityId: user._id,
+    reason,
+    metadata: { telegramId: user.telegramId },
+  });
+
   await sendBotMessage(
     user.telegramId,
     user.banned
@@ -202,6 +212,15 @@ export const updateSellerApprovalStatus = async (userId, { approved, reason = ''
   user.approvalReviewedAt = reviewedAt;
   user.approvalRejectionReason = approved ? '' : reason;
   await user.save();
+
+  await recordAuditLog({
+    actor: adminLabel,
+    action: approved ? 'seller.approve' : 'seller.reject',
+    entityType: 'user',
+    entityId: user._id,
+    reason,
+    metadata: { telegramId: user.telegramId },
+  });
 
   await sendBotMessage(
     user.telegramId,
