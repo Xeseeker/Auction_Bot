@@ -4,7 +4,8 @@ import { Panel } from '../components/Panel.jsx';
 import { StatusBadge } from '../components/StatusBadge.jsx';
 import { useLocale } from '../lib/i18n.jsx';
 
-const person = (user, fallback) => (user?.username ? `@${user.username}` : [user?.firstName, user?.lastName].filter(Boolean).join(' ') || fallback);
+const person = (user, fallback) =>
+  user?.username ? `@${user.username}` : [user?.firstName, user?.lastName].filter(Boolean).join(' ') || fallback;
 
 export function UsersPage({ users, loading, error, onSearch, onBanToggle, onApprovalReview }) {
   const { t } = useLocale();
@@ -20,12 +21,14 @@ export function UsersPage({ users, loading, error, onSearch, onBanToggle, onAppr
       <header>
         <p className="text-xs uppercase tracking-[0.3em] text-tide-300">{t('users_tag')}</p>
         <h1 className="mt-3 font-display text-4xl font-bold text-white">{t('users_title')}</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-sand-100/60">
-          {t('users_subtitle')}
-        </p>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-sand-100/60">{t('users_subtitle')}</p>
       </header>
 
-      {error ? <div className="rounded-2xl border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">{error}</div> : null}
+      {error ? (
+        <div className="rounded-2xl border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+          {error}
+        </div>
+      ) : null}
 
       <Panel
         title={t('accounts_title')}
@@ -87,12 +90,15 @@ export function UsersPage({ users, loading, error, onSearch, onBanToggle, onAppr
             {
               key: 'sellerApproval',
               label: t('seller_approval'),
-              render: (row) => <StatusBadge value={row.sellerApprovalStatus || (row.sellerApproved ? 'approved' : 'not_requested')} />,
+              render: (row) => (
+                <StatusBadge value={row.sellerApprovalStatus || (row.sellerApproved ? 'approved' : 'not_requested')} />
+              ),
             },
             {
               key: 'requested',
               label: t('requested_label'),
-              render: (row) => (row.approvalRequestedAt ? new Date(row.approvalRequestedAt).toLocaleString() : t('not_available')),
+              render: (row) =>
+                row.approvalRequestedAt ? new Date(row.approvalRequestedAt).toLocaleString() : t('not_available'),
             },
             {
               key: 'reviewedBy',

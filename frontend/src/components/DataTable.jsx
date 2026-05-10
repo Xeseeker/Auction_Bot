@@ -5,11 +5,7 @@ export function DataTable({ columns, rows, empty = 'No records found.' }) {
   const resolvedEmpty = empty === 'No records found.' ? t('no_records') : empty;
 
   if (!rows.length) {
-    return (
-      <div className="table-wrap p-10 text-center text-sm text-sand-100/55">
-        {resolvedEmpty}
-      </div>
-    );
+    return <div className="table-wrap p-10 text-center text-sm text-sand-100/55">{resolvedEmpty}</div>;
   }
 
   return (

@@ -5,8 +5,12 @@ import { AppShell } from './components/AppShell.jsx';
 import { useLocale } from './lib/i18n.jsx';
 import { closeSocket, getSocket } from './lib/socket.js';
 
-const DashboardPage = lazy(() => import('./pages/DashboardPage.jsx').then((module) => ({ default: module.DashboardPage })));
-const AuctionsPage = lazy(() => import('./pages/AuctionsPage.jsx').then((module) => ({ default: module.AuctionsPage })));
+const DashboardPage = lazy(() =>
+  import('./pages/DashboardPage.jsx').then((module) => ({ default: module.DashboardPage }))
+);
+const AuctionsPage = lazy(() =>
+  import('./pages/AuctionsPage.jsx').then((module) => ({ default: module.AuctionsPage }))
+);
 const UsersPage = lazy(() => import('./pages/UsersPage.jsx').then((module) => ({ default: module.UsersPage })));
 const StatsPage = lazy(() => import('./pages/StatsPage.jsx').then((module) => ({ default: module.StatsPage })));
 const LoginPage = lazy(() => import('./pages/LoginPage.jsx').then((module) => ({ default: module.LoginPage })));
@@ -27,7 +31,14 @@ export default function App() {
   const [adminUser, setAdminUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(false);
   const [dashboard, setDashboard] = useState({ loading: true, error: '', data: null });
-  const [auctions, setAuctions] = useState({ loading: true, error: '', items: [], selected: null, detailLoading: false, query: '' });
+  const [auctions, setAuctions] = useState({
+    loading: true,
+    error: '',
+    items: [],
+    selected: null,
+    detailLoading: false,
+    query: '',
+  });
   const [users, setUsers] = useState({ loading: true, error: '', items: [], query: '' });
   const [stats, setStats] = useState({ loading: true, error: '', data: null });
   const [socketConnected, setSocketConnected] = useState(false);
@@ -66,7 +77,9 @@ export default function App() {
   };
 
   const loadAuctions = async (filters = null) => {
-    const query = filters ? new URLSearchParams(Object.entries(filters).filter(([, value]) => value)).toString() : auctions.query;
+    const query = filters
+      ? new URLSearchParams(Object.entries(filters).filter(([, value]) => value)).toString()
+      : auctions.query;
     setAuctions((current) => ({ ...current, loading: true, error: '', query }));
     try {
       const data = await adminApi.auctions(query);
@@ -99,7 +112,9 @@ export default function App() {
   };
 
   const loadUsers = async (filters = null) => {
-    const query = filters ? new URLSearchParams(Object.entries(filters).filter(([, value]) => value)).toString() : users.query;
+    const query = filters
+      ? new URLSearchParams(Object.entries(filters).filter(([, value]) => value)).toString()
+      : users.query;
     setUsers((current) => ({ ...current, loading: true, error: '', query }));
     try {
       const data = await adminApi.users(query);
@@ -237,10 +252,10 @@ export default function App() {
 
   if (!authReady) {
     return (
-        <div className="flex min-h-screen items-center justify-center">
-          <div className="glass-panel px-6 py-4 text-sm text-sand-100/70">{t('loading_admin')}</div>
-        </div>
-      );
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="glass-panel px-6 py-4 text-sm text-sand-100/70">{t('loading_admin')}</div>
+      </div>
+    );
   }
 
   return (

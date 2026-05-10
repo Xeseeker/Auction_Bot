@@ -1,14 +1,4 @@
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-  BarChart,
-  Bar,
-} from 'recharts';
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, BarChart, Bar } from 'recharts';
 import { DataTable } from '../components/DataTable.jsx';
 import { Panel } from '../components/Panel.jsx';
 import { StatCard } from '../components/StatCard.jsx';
@@ -16,15 +6,17 @@ import { StatusBadge } from '../components/StatusBadge.jsx';
 import { useLocale } from '../lib/i18n.jsx';
 
 const currency = (value) => `${Number(value || 0).toLocaleString()} ETB`;
-const person = (user, fallback = 'N/A') => (user?.username ? `@${user.username}` : [user?.firstName, user?.lastName].filter(Boolean).join(' ') || fallback);
+const person = (user, fallback = 'N/A') =>
+  user?.username ? `@${user.username}` : [user?.firstName, user?.lastName].filter(Boolean).join(' ') || fallback;
 
 export function DashboardPage({ data, loading, error, onRefresh }) {
   const { t } = useLocale();
-  const trendRows = data?.trends.auctions.labels.map((label, index) => ({
-    day: label.slice(5),
-    auctions: data.trends.auctions.data[index],
-    bids: data.trends.bids.data[index],
-  })) || [];
+  const trendRows =
+    data?.trends.auctions.labels.map((label, index) => ({
+      day: label.slice(5),
+      auctions: data.trends.auctions.data[index],
+      bids: data.trends.bids.data[index],
+    })) || [];
 
   return (
     <div className="space-y-6">
@@ -32,24 +24,42 @@ export function DashboardPage({ data, loading, error, onRefresh }) {
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-tide-300">{t('dashboard_tag')}</p>
           <h1 className="mt-3 font-display text-4xl font-bold text-white">{t('dashboard_title')}</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-sand-100/60">
-            {t('dashboard_subtitle')}
-          </p>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-sand-100/60">{t('dashboard_subtitle')}</p>
         </div>
         <button className="btn-secondary" onClick={onRefresh} type="button">
           {t('refresh')}
         </button>
       </header>
 
-      {error ? <div className="rounded-2xl border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">{error}</div> : null}
+      {error ? (
+        <div className="rounded-2xl border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+          {error}
+        </div>
+      ) : null}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-        <StatCard label={t('users_card')} value={loading ? '...' : data?.overview.totalUsers ?? 0} />
-        <StatCard label={t('pending_sellers_card')} tone="warm" value={loading ? '...' : data?.overview.pendingSellerApprovals ?? 0} />
-        <StatCard label={t('pending_auctions_card')} tone="warm" value={loading ? '...' : data?.overview.pendingAuctions ?? 0} />
-        <StatCard label={t('active_auctions_card')} tone="success" value={loading ? '...' : data?.overview.activeAuctions ?? 0} />
-        <StatCard label={t('total_bids_card')} tone="warm" value={loading ? '...' : data?.overview.totalBids ?? 0} />
-        <StatCard label={t('volume_card')} tone="danger" value={loading ? '...' : currency(data?.overview.totalVolume)} />
+        <StatCard label={t('users_card')} value={loading ? '...' : (data?.overview.totalUsers ?? 0)} />
+        <StatCard
+          label={t('pending_sellers_card')}
+          tone="warm"
+          value={loading ? '...' : (data?.overview.pendingSellerApprovals ?? 0)}
+        />
+        <StatCard
+          label={t('pending_auctions_card')}
+          tone="warm"
+          value={loading ? '...' : (data?.overview.pendingAuctions ?? 0)}
+        />
+        <StatCard
+          label={t('active_auctions_card')}
+          tone="success"
+          value={loading ? '...' : (data?.overview.activeAuctions ?? 0)}
+        />
+        <StatCard label={t('total_bids_card')} tone="warm" value={loading ? '...' : (data?.overview.totalBids ?? 0)} />
+        <StatCard
+          label={t('volume_card')}
+          tone="danger"
+          value={loading ? '...' : currency(data?.overview.totalVolume)}
+        />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
@@ -66,7 +76,9 @@ export function DashboardPage({ data, loading, error, onRefresh }) {
                 <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
                 <XAxis dataKey="day" stroke="rgba(251,246,238,0.45)" />
                 <YAxis stroke="rgba(251,246,238,0.45)" />
-                <Tooltip contentStyle={{ background: '#121a28', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16 }} />
+                <Tooltip
+                  contentStyle={{ background: '#121a28', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16 }}
+                />
                 <Area dataKey="auctions" stroke="#75d7d0" fill="url(#auctionsFill)" strokeWidth={3} />
               </AreaChart>
             </ResponsiveContainer>
@@ -80,7 +92,9 @@ export function DashboardPage({ data, loading, error, onRefresh }) {
                 <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
                 <XAxis dataKey="day" stroke="rgba(251,246,238,0.45)" />
                 <YAxis stroke="rgba(251,246,238,0.45)" />
-                <Tooltip contentStyle={{ background: '#121a28', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16 }} />
+                <Tooltip
+                  contentStyle={{ background: '#121a28', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16 }}
+                />
                 <Bar dataKey="bids" fill="#ff7a45" radius={[10, 10, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -105,7 +119,11 @@ export function DashboardPage({ data, loading, error, onRefresh }) {
           <DataTable
             rows={data?.recentBids || []}
             columns={[
-              { key: 'auction', label: t('auction_label'), render: (row) => row.auction?.itemName || t('not_available') },
+              {
+                key: 'auction',
+                label: t('auction_label'),
+                render: (row) => row.auction?.itemName || t('not_available'),
+              },
               { key: 'bidder', label: t('bidder_label'), render: (row) => person(row.bidder, t('not_available')) },
               { key: 'amount', label: t('amount_label'), render: (row) => currency(row.amount) },
               { key: 'time', label: t('time_label'), render: (row) => new Date(row.createdAt).toLocaleString() },

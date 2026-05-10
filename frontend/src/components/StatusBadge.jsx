@@ -20,7 +20,9 @@ const statusStyles = {
 export function StatusBadge({ value }) {
   const { t } = useLocale();
   const formatLabel = (statusValue) => {
-    const normalized = String(statusValue || '').replace(/[^a-z_]/gi, '').toLowerCase();
+    const normalized = String(statusValue || '')
+      .replace(/[^a-z_]/gi, '')
+      .toLowerCase();
     const translated = t(`status_${normalized}`);
     return translated.startsWith('status_') ? normalized.replace(/_/g, ' ') : translated;
   };

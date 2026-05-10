@@ -6,7 +6,8 @@ import { adminApi } from '../lib/api.js';
 import { useLocale } from '../lib/i18n.jsx';
 
 const currency = (value) => `${Number(value || 0).toLocaleString()} ETB`;
-const person = (user, fallback) => (user?.username ? `@${user.username}` : [user?.firstName, user?.lastName].filter(Boolean).join(' ') || fallback);
+const person = (user, fallback) =>
+  user?.username ? `@${user.username}` : [user?.firstName, user?.lastName].filter(Boolean).join(' ') || fallback;
 
 export function AuctionsPage({
   auctions,
@@ -23,7 +24,12 @@ export function AuctionsPage({
   const { t } = useLocale();
   const [filters, setFilters] = useState({ search: '', status: 'all' });
   const querySummary = useMemo(
-    () => (filters.search ? `${t('search_label')}: ${filters.search}` : filters.status === 'all' ? t('all_auctions') : `${t('status_label')}: ${t(`status_${filters.status}`)}`),
+    () =>
+      filters.search
+        ? `${t('search_label')}: ${filters.search}`
+        : filters.status === 'all'
+          ? t('all_auctions')
+          : `${t('status_label')}: ${t(`status_${filters.status}`)}`,
     [filters, t]
   );
 
@@ -46,17 +52,22 @@ export function AuctionsPage({
       <header>
         <p className="text-xs uppercase tracking-[0.3em] text-tide-300">{t('auctions_tag')}</p>
         <h1 className="mt-3 font-display text-4xl font-bold text-white">{t('auctions_title')}</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-sand-100/60">
-          {t('auctions_subtitle')}
-        </p>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-sand-100/60">{t('auctions_subtitle')}</p>
       </header>
 
-      {error ? <div className="rounded-2xl border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">{error}</div> : null}
+      {error ? (
+        <div className="rounded-2xl border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+          {error}
+        </div>
+      ) : null}
       <Panel
         title={t('auction_directory')}
         subtitle={querySummary}
         actions={
-          <form className="grid w-full min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_160px] lg:grid-cols-[minmax(220px,1fr)_160px_auto]" onSubmit={submit}>
+          <form
+            className="grid w-full min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_160px] lg:grid-cols-[minmax(220px,1fr)_160px_auto]"
+            onSubmit={submit}
+          >
             <input
               className="field"
               onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
@@ -87,14 +98,22 @@ export function AuctionsPage({
               key: 'item',
               label: t('item_label'),
               render: (row) => (
-                <button className="text-left font-semibold text-tide-300 hover:text-tide-200" onClick={() => onSelect(row._id)} type="button">
+                <button
+                  className="text-left font-semibold text-tide-300 hover:text-tide-200"
+                  onClick={() => onSelect(row._id)}
+                  type="button"
+                >
                   {row.itemName}
                 </button>
               ),
             },
             { key: 'seller', label: t('seller_label'), render: (row) => person(row.seller, t('not_available')) },
             { key: 'status', label: t('status_label'), render: (row) => <StatusBadge value={row.status} /> },
-            { key: 'type', label: t('auction_type'), render: (row) => <StatusBadge value={row.auctionType || 'standard'} /> },
+            {
+              key: 'type',
+              label: t('auction_type'),
+              render: (row) => <StatusBadge value={row.auctionType || 'standard'} />,
+            },
             { key: 'category', label: t('category_label'), render: (row) => row.category || t('not_available') },
             { key: 'bid', label: t('current_bid_label'), render: (row) => currency(row.currentBid) },
             { key: 'ends', label: t('ends_label'), render: (row) => new Date(row.endTime).toLocaleString() },
@@ -145,7 +164,9 @@ export function AuctionsPage({
             <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
               <div className="rounded-3xl bg-white/5 p-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-sand-100/45">{t('status_label')}</p>
-                <div className="mt-3"><StatusBadge value={auction.status} /></div>
+                <div className="mt-3">
+                  <StatusBadge value={auction.status} />
+                </div>
               </div>
               <div className="rounded-3xl bg-white/5 p-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-sand-100/45">{t('seller_label')}</p>
@@ -167,11 +188,15 @@ export function AuctionsPage({
               </div>
               <div className="rounded-3xl bg-white/5 p-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-sand-100/45">{t('reserve_label')}</p>
-                <p className="mt-3 font-semibold text-white">{auction.reservePrice ? currency(auction.reservePrice) : t('none')}</p>
+                <p className="mt-3 font-semibold text-white">
+                  {auction.reservePrice ? currency(auction.reservePrice) : t('none')}
+                </p>
               </div>
               <div className="rounded-3xl bg-white/5 p-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-sand-100/45">{t('buy_now_label')}</p>
-                <p className="mt-3 font-semibold text-white">{auction.buyNowPrice ? currency(auction.buyNowPrice) : t('none')}</p>
+                <p className="mt-3 font-semibold text-white">
+                  {auction.buyNowPrice ? currency(auction.buyNowPrice) : t('none')}
+                </p>
               </div>
             </div>
 
@@ -182,7 +207,9 @@ export function AuctionsPage({
               </div>
               <div className="rounded-3xl bg-white/5 p-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-sand-100/45">{t('tags_label')}</p>
-                <p className="mt-3 font-semibold text-white">{auction.tags?.length ? auction.tags.join(', ') : t('none')}</p>
+                <p className="mt-3 font-semibold text-white">
+                  {auction.tags?.length ? auction.tags.join(', ') : t('none')}
+                </p>
               </div>
               <div className="rounded-3xl bg-white/5 p-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-sand-100/45">{t('bid_increment')}</p>
@@ -190,7 +217,10 @@ export function AuctionsPage({
               </div>
             </div>
 
-            <Panel title={t('media_gallery')} subtitle={mediaAssets.length ? t('media_count', { count: String(mediaAssets.length) }) : t('no_media')}>
+            <Panel
+              title={t('media_gallery')}
+              subtitle={mediaAssets.length ? t('media_count', { count: String(mediaAssets.length) }) : t('no_media')}
+            >
               {mediaAssets.length ? (
                 <div className="grid gap-4 md:grid-cols-2">
                   {mediaAssets.map((asset) =>
@@ -212,7 +242,9 @@ export function AuctionsPage({
                   )}
                 </div>
               ) : (
-                <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-sand-100/55">{t('no_media')}</div>
+                <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-sand-100/55">
+                  {t('no_media')}
+                </div>
               )}
             </Panel>
 

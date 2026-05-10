@@ -42,8 +42,7 @@ export default {
         glow: '0 20px 60px rgba(18, 157, 151, 0.18)',
       },
       backgroundImage: {
-        haze:
-          'radial-gradient(circle at top left, rgba(18,157,151,0.22), transparent 28%), radial-gradient(circle at top right, rgba(255,122,69,0.16), transparent 24%), linear-gradient(180deg, #121a28 0%, #0c111d 100%)',
+        haze: 'radial-gradient(circle at top left, rgba(18,157,151,0.22), transparent 28%), radial-gradient(circle at top right, rgba(255,122,69,0.16), transparent 24%), linear-gradient(180deg, #121a28 0%, #0c111d 100%)',
       },
     },
   },

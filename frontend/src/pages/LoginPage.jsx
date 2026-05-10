@@ -25,9 +25,7 @@ export function LoginPage({ onLogin, loading }) {
             <h1 className="mt-4 max-w-lg font-display text-5xl font-bold leading-tight text-white">
               {t('marketing_title')}
             </h1>
-            <p className="mt-5 max-w-xl text-base leading-7 text-sand-100/60">
-              {t('marketing_subtitle')}
-            </p>
+            <p className="mt-5 max-w-xl text-base leading-7 text-sand-100/60">{t('marketing_subtitle')}</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="rounded-3xl bg-white/5 p-4">
@@ -48,9 +46,7 @@ export function LoginPage({ onLogin, loading }) {
         <section className="glass-panel p-6 sm:p-8">
           <p className="text-xs uppercase tracking-[0.3em] text-tide-300">{t('login_tag')}</p>
           <h2 className="mt-4 font-display text-3xl font-bold text-white">{t('login_title')}</h2>
-          <p className="mt-2 text-sm text-sand-100/60">
-            {t('login_subtitle')}
-          </p>
+          <p className="mt-2 text-sm text-sand-100/60">{t('login_subtitle')}</p>
 
           {error ? (
             <div className="mt-5 rounded-2xl border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">

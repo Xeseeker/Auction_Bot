@@ -20,4 +20,3 @@ export const closeSocket = () => {
     socketInstance = null;
   }
 };
-
