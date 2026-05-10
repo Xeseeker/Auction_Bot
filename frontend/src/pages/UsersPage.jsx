@@ -31,7 +31,7 @@ export function UsersPage({ users, loading, error, onSearch, onBanToggle, onAppr
         title={t('accounts_title')}
         subtitle={t('accounts_subtitle')}
         actions={
-          <form className="grid gap-3 xl:grid-cols-[minmax(220px,1fr)_140px_160px_180px_auto]" onSubmit={submit}>
+          <form className="grid w-full min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(220px,1fr)_140px_160px_180px_auto]" onSubmit={submit}>
             <input
               className="field"
               onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
@@ -67,7 +67,7 @@ export function UsersPage({ users, loading, error, onSearch, onBanToggle, onAppr
               <option value="false">{t('active_only')}</option>
               <option value="true">{t('banned_only')}</option>
             </select>
-            <button className="btn-primary" disabled={loading} type="submit">
+            <button className="btn-primary sm:col-span-2 xl:col-span-1" disabled={loading} type="submit">
               {loading ? t('loading') : t('apply')}
             </button>
           </form>

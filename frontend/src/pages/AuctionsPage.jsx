@@ -56,7 +56,7 @@ export function AuctionsPage({
         title={t('auction_directory')}
         subtitle={querySummary}
         actions={
-          <form className="grid gap-3 md:grid-cols-[minmax(220px,1fr)_160px_auto]" onSubmit={submit}>
+          <form className="grid w-full min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_160px] lg:grid-cols-[minmax(220px,1fr)_160px_auto]" onSubmit={submit}>
             <input
               className="field"
               onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
@@ -74,7 +74,7 @@ export function AuctionsPage({
               <option value="ended">{t('status_ended')}</option>
               <option value="cancelled">{t('status_cancelled')}</option>
             </select>
-            <button className="btn-primary" disabled={loading} type="submit">
+            <button className="btn-primary sm:col-span-2 lg:col-span-1" disabled={loading} type="submit">
               {loading ? t('loading') : t('apply')}
             </button>
           </form>
@@ -107,7 +107,7 @@ export function AuctionsPage({
         subtitle={auction ? auction.description : t('select_auction_detail')}
         actions={
           auction?.status === 'pending' ? (
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <button className="btn-secondary" onClick={() => onApprove(auction._id)} type="button">
                 {t('approve_auction')}
               </button>

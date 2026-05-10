@@ -56,7 +56,7 @@ export function AppShell({ adminUser, onLogout, socketConnected, children }) {
         </div>
       </aside>
 
-      <main className="p-4 sm:p-6 lg:p-8">{children}</main>
+      <main className="min-w-0 p-4 sm:p-6 lg:p-8">{children}</main>
     </div>
   );
 }
