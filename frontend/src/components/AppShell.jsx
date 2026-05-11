@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { useLocale } from '../lib/i18n.jsx';
+import { useLocale } from '../lib/useLocale.js';
 
 export function AppShell({ adminUser, onLogout, socketConnected, children }) {
   const { locale, setLocale, t } = useLocale();

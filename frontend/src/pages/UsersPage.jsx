@@ -4,7 +4,7 @@ import { DataTable } from '../components/DataTable.jsx';
 import { PaginationControls } from '../components/PaginationControls.jsx';
 import { Panel } from '../components/Panel.jsx';
 import { StatusBadge } from '../components/StatusBadge.jsx';
-import { useLocale } from '../lib/i18n.jsx';
+import { useLocale } from '../lib/useLocale.js';
 
 const person = (user, fallback) =>
   user?.username ? `@${user.username}` : [user?.firstName, user?.lastName].filter(Boolean).join(' ') || fallback;

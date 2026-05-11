@@ -2,7 +2,7 @@ import { Suspense, lazy, startTransition, useCallback, useEffect, useState } fro
 import { Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { adminApi } from './lib/api.js';
 import { AppShell } from './components/AppShell.jsx';
-import { useLocale } from './lib/i18n.jsx';
+import { useLocale } from './lib/useLocale.js';
 import { closeSocket, getSocket } from './lib/socket.js';
 
 const DashboardPage = lazy(() =>

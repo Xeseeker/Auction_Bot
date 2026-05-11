@@ -3,7 +3,7 @@ import { DataTable } from '../components/DataTable.jsx';
 import { Panel } from '../components/Panel.jsx';
 import { StatCard } from '../components/StatCard.jsx';
 import { StatusBadge } from '../components/StatusBadge.jsx';
-import { useLocale } from '../lib/i18n.jsx';
+import { useLocale } from '../lib/useLocale.js';
 
 const currency = (value) => `${Number(value || 0).toLocaleString()} ETB`;
 const person = (user, fallback = 'N/A') =>

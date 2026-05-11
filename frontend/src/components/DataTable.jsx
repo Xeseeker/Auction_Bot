@@ -1,4 +1,4 @@
-import { useLocale } from '../lib/i18n.jsx';
+import { useLocale } from '../lib/useLocale.js';
 
 export function DataTable({ columns, rows, empty = 'No records found.' }) {
   const { t } = useLocale();

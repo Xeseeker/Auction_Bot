@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { LocaleContext } from './localeContext.js';
 
 const en = {
   app_title: 'Auction Admin',
@@ -509,8 +510,6 @@ const am = {
 
 const dictionaries = { en, sw, am };
 
-const LocaleContext = createContext(null);
-
 const interpolate = (value, vars = {}) =>
   Object.entries(vars).reduce(
     (message, [key, replacement]) => message.replaceAll(`{${key}}`, replacement ?? ''),
@@ -537,12 +536,3 @@ export function LocaleProvider({ children }) {
 
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
 }
-
-export const useLocale = () => {
-  const context = useContext(LocaleContext);
-  if (!context) {
-    throw new Error('useLocale must be used within LocaleProvider.');
-  }
-
-  return context;
-};

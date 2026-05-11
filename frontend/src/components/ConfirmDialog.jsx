@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLocale } from '../lib/i18n.jsx';
+import { useLocale } from '../lib/useLocale.js';
 
 export function ConfirmDialog({
   open,

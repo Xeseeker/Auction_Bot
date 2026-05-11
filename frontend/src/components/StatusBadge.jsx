@@ -1,4 +1,4 @@
-import { useLocale } from '../lib/i18n.jsx';
+import { useLocale } from '../lib/useLocale.js';
 
 const statusStyles = {
   active: 'bg-pine-500/20 text-pine-400',

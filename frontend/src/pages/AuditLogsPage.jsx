@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { DataTable } from '../components/DataTable.jsx';
 import { PaginationControls } from '../components/PaginationControls.jsx';
 import { Panel } from '../components/Panel.jsx';
-import { useLocale } from '../lib/i18n.jsx';
+import { useLocale } from '../lib/useLocale.js';
 
 export function AuditLogsPage({ logs, pagination, loading, error, onSearch, onPageChange }) {
   const { t } = useLocale();

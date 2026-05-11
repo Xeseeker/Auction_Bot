@@ -1,4 +1,4 @@
-import { useLocale } from '../lib/i18n.jsx';
+import { useLocale } from '../lib/useLocale.js';
 
 export function PaginationControls({ pagination, loading = false, onPageChange }) {
   const { t } = useLocale();
