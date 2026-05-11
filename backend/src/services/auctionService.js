@@ -3,14 +3,13 @@ import { config } from '../config/env.js';
 import Auction from '../models/Auction.js';
 import Bid from '../models/Bid.js';
 import User from '../models/User.js';
+import { getAuctionType, getCurrentDutchPrice, isDutchAuction } from '../utils/auctionPricing.js';
 import { createPagination, parsePagination } from '../utils/pagination.js';
 import { recordAuditLog } from './auditService.js';
 import { emitAuctionRoomUpdate, emitPlatformUpdate } from './liveUpdateService.js';
 import { sendBotMessage } from './notificationService.js';
 
 const getBidIncrement = (auction) => Math.max(Number(auction.bidIncrement) || 1, 1);
-const getAuctionType = (auction) => auction.auctionType || 'standard';
-const isDutchAuction = (auction) => getAuctionType(auction) === 'dutch';
 const isSealedBidAuction = (auction) => getAuctionType(auction) === 'sealed_bid';
 const isReverseAuction = (auction) => getAuctionType(auction) === 'reverse';
 const escapeTelegramMarkdown = (value) => String(value ?? '').replace(/([-_*[\]()~`>#+=|{}.!\\])/g, '\\$1');
@@ -21,21 +20,7 @@ const getAuctionStartingValue = (auction) =>
   isDutchAuction(auction)
     ? Number(auction.startingPrice || auction.currentBid || 0)
     : Number(auction.startingPrice || 0);
-export const getCurrentDutchPrice = (auction, at = new Date()) => {
-  const openingPrice = Number(auction.startingPrice) || 0;
-  const floorPrice = Number(auction.dutchFloorPrice) || 0;
-  const dropAmount = Number(auction.dutchDropAmount) || 0;
-  const dropIntervalMinutes = Number(auction.dutchDropIntervalMinutes) || 0;
-
-  if (!isDutchAuction(auction) || !dropAmount || !dropIntervalMinutes || auction.status !== 'active') {
-    return Number(auction.currentBid) || openingPrice;
-  }
-
-  const elapsedMs = Math.max(new Date(at).getTime() - new Date(auction.createdAt).getTime(), 0);
-  const completedSteps = Math.floor(elapsedMs / (dropIntervalMinutes * 60 * 1000));
-  const droppedPrice = openingPrice - completedSteps * dropAmount;
-  return Math.max(droppedPrice, floorPrice);
-};
+export { getCurrentDutchPrice };
 
 export const hydrateAuctionDynamicState = async (auction, { persist = false } = {}) => {
   if (!auction) {

@@ -1,14 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
-
-process.env.BOT_TOKEN = 'test-bot-token';
-process.env.CHANNEL_ID = '@test_channel';
-
-vi.mock('../bot/instance.js', () => ({ default: null }));
+import { describe, expect, it } from 'vitest';
+import { getCurrentDutchPrice } from '../utils/auctionPricing.js';
 
 describe('getCurrentDutchPrice', () => {
-  it('returns currentBid for non-Dutch auctions', async () => {
-    const { getCurrentDutchPrice } = await import('./auctionService.js');
-
+  it('returns currentBid for non-Dutch auctions', () => {
     expect(
       getCurrentDutchPrice({
         auctionType: 'standard',
@@ -19,8 +13,7 @@ describe('getCurrentDutchPrice', () => {
     ).toBe(125);
   });
 
-  it('drops the Dutch price by completed intervals', async () => {
-    const { getCurrentDutchPrice } = await import('./auctionService.js');
+  it('drops the Dutch price by completed intervals', () => {
     const createdAt = new Date('2026-01-01T10:00:00.000Z');
     const at = new Date('2026-01-01T10:31:00.000Z');
 
@@ -41,8 +34,7 @@ describe('getCurrentDutchPrice', () => {
     ).toBe(80);
   });
 
-  it('does not drop below the Dutch floor price', async () => {
-    const { getCurrentDutchPrice } = await import('./auctionService.js');
+  it('does not drop below the Dutch floor price', () => {
     const createdAt = new Date('2026-01-01T10:00:00.000Z');
     const at = new Date('2026-01-01T12:00:00.000Z');
 
