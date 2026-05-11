@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ConfirmDialog } from '../components/ConfirmDialog.jsx';
 import { DataTable } from '../components/DataTable.jsx';
 import { PaginationControls } from '../components/PaginationControls.jsx';
 import { Panel } from '../components/Panel.jsx';
@@ -20,6 +21,7 @@ export function UsersPage({
 }) {
   const { t } = useLocale();
   const [filters, setFilters] = useState({ search: '', role: 'all', banned: '', sellerApproval: 'all' });
+  const [pendingAction, setPendingAction] = useState(null);
 
   const submit = (event) => {
     event.preventDefault();
@@ -136,20 +138,14 @@ export function UsersPage({
                   <button
                     className="btn-danger"
                     disabled={row.sellerApprovalStatus === 'not_requested'}
-                    onClick={() => {
-                      const reason = window.prompt(t('rejection_reason_prompt')) || '';
-                      onApprovalReview(row._id, false, reason);
-                    }}
+                    onClick={() => setPendingAction({ type: 'rejectSeller', user: row })}
                     type="button"
                   >
                     {t('reject')}
                   </button>
                   <button
                     className={row.banned ? 'btn-secondary' : 'btn-danger'}
-                    onClick={() => {
-                      const reason = row.banned ? '' : window.prompt(t('ban_reason_prompt')) || '';
-                      onBanToggle(row._id, !row.banned, reason);
-                    }}
+                    onClick={() => setPendingAction({ type: row.banned ? 'unban' : 'ban', user: row })}
                     type="button"
                   >
                     {row.banned ? t('unban') : t('ban')}
@@ -161,6 +157,42 @@ export function UsersPage({
         />
         <PaginationControls loading={loading} onPageChange={onPageChange} pagination={pagination} />
       </Panel>
+
+      <ConfirmDialog
+        confirmLabel={
+          pendingAction?.type === 'rejectSeller' ? t('reject') : pendingAction?.type === 'unban' ? t('unban') : t('ban')
+        }
+        message={
+          pendingAction?.type === 'rejectSeller'
+            ? t('reject_user_confirm')
+            : pendingAction?.type === 'unban'
+              ? t('unban_user_confirm')
+              : t('ban_user_confirm')
+        }
+        onCancel={() => setPendingAction(null)}
+        onConfirm={(reason) => {
+          if (!pendingAction?.user) {
+            return;
+          }
+
+          if (pendingAction.type === 'rejectSeller') {
+            onApprovalReview(pendingAction.user._id, false, reason);
+          } else {
+            onBanToggle(pendingAction.user._id, pendingAction.type === 'ban', reason);
+          }
+
+          setPendingAction(null);
+        }}
+        open={Boolean(pendingAction)}
+        reasonLabel={pendingAction?.type === 'unban' ? undefined : t('reason_label')}
+        reasonPlaceholder={
+          pendingAction?.type === 'rejectSeller' ? t('rejection_reason_prompt') : t('ban_reason_prompt')
+        }
+        title={
+          pendingAction?.type === 'rejectSeller' ? t('reject') : pendingAction?.type === 'unban' ? t('unban') : t('ban')
+        }
+        tone={pendingAction?.type === 'unban' ? 'primary' : 'danger'}
+      />
     </div>
   );
 }
