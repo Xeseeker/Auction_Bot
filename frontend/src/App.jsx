@@ -1,4 +1,4 @@
-import { Suspense, lazy, startTransition, useEffect, useState } from 'react';
+import { Suspense, lazy, startTransition, useCallback, useEffect, useState } from 'react';
 import { Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { adminApi } from './lib/api.js';
 import { AppShell } from './components/AppShell.jsx';
@@ -50,14 +50,14 @@ export default function App() {
   const [auditLogs, setAuditLogs] = useState({ loading: true, error: '', items: [], pagination: null, query: '' });
   const [socketConnected, setSocketConnected] = useState(false);
 
-  const handleUnauthorized = () => {
+  const handleUnauthorized = useCallback(() => {
     setAdminUser(null);
     if (location.pathname !== '/login') {
       navigate('/login', { replace: true });
     }
-  };
+  }, [location.pathname, navigate]);
 
-  const loadSession = async () => {
+  const loadSession = useCallback(async () => {
     try {
       const session = await adminApi.session();
       setAdminUser(session.adminUser);
@@ -68,9 +68,9 @@ export default function App() {
     } finally {
       setAuthReady(true);
     }
-  };
+  }, []);
 
-  const loadDashboard = async () => {
+  const loadDashboard = useCallback(async () => {
     setDashboard((current) => ({ ...current, loading: true, error: '' }));
     try {
       const data = await adminApi.dashboard();
@@ -81,68 +81,77 @@ export default function App() {
       }
       setDashboard({ loading: false, error: error.message, data: null });
     }
-  };
+  }, [handleUnauthorized]);
 
-  const loadAuctions = async (filters = null) => {
-    const query = filters
-      ? new URLSearchParams(Object.entries(filters).filter(([, value]) => value)).toString()
-      : auctions.query;
-    setAuctions((current) => ({ ...current, loading: true, error: '', query }));
-    try {
-      const data = await adminApi.auctions(query);
-      setAuctions((current) => ({
-        ...current,
-        loading: false,
-        error: '',
-        items: data.items,
-        pagination: data.pagination,
-        query,
-      }));
-    } catch (error) {
-      if (error.status === 401) {
-        handleUnauthorized();
+  const loadAuctions = useCallback(
+    async (filters = null) => {
+      const query = filters
+        ? new URLSearchParams(Object.entries(filters).filter(([, value]) => value)).toString()
+        : auctions.query;
+      setAuctions((current) => ({ ...current, loading: true, error: '', query }));
+      try {
+        const data = await adminApi.auctions(query);
+        setAuctions((current) => ({
+          ...current,
+          loading: false,
+          error: '',
+          items: data.items,
+          pagination: data.pagination,
+          query,
+        }));
+      } catch (error) {
+        if (error.status === 401) {
+          handleUnauthorized();
+        }
+        setAuctions((current) => ({ ...current, loading: false, error: error.message }));
       }
-      setAuctions((current) => ({ ...current, loading: false, error: error.message }));
-    }
-  };
+    },
+    [auctions.query, handleUnauthorized]
+  );
 
-  const loadAuctionDetail = async (auctionId) => {
-    setAuctions((current) => ({ ...current, detailLoading: true, error: '' }));
-    try {
-      const data = await adminApi.auction(auctionId);
-      setAuctions((current) => ({ ...current, selected: data, detailLoading: false }));
-    } catch (error) {
-      if (error.status === 401) {
-        handleUnauthorized();
+  const loadAuctionDetail = useCallback(
+    async (auctionId) => {
+      setAuctions((current) => ({ ...current, detailLoading: true, error: '' }));
+      try {
+        const data = await adminApi.auction(auctionId);
+        setAuctions((current) => ({ ...current, selected: data, detailLoading: false }));
+      } catch (error) {
+        if (error.status === 401) {
+          handleUnauthorized();
+        }
+        setAuctions((current) => ({ ...current, error: error.message, detailLoading: false }));
       }
-      setAuctions((current) => ({ ...current, error: error.message, detailLoading: false }));
-    }
-  };
+    },
+    [handleUnauthorized]
+  );
 
-  const loadUsers = async (filters = null) => {
-    const query = filters
-      ? new URLSearchParams(Object.entries(filters).filter(([, value]) => value)).toString()
-      : users.query;
-    setUsers((current) => ({ ...current, loading: true, error: '', query }));
-    try {
-      const data = await adminApi.users(query);
-      setUsers((current) => ({
-        ...current,
-        loading: false,
-        error: '',
-        items: data.items,
-        pagination: data.pagination,
-        query,
-      }));
-    } catch (error) {
-      if (error.status === 401) {
-        handleUnauthorized();
+  const loadUsers = useCallback(
+    async (filters = null) => {
+      const query = filters
+        ? new URLSearchParams(Object.entries(filters).filter(([, value]) => value)).toString()
+        : users.query;
+      setUsers((current) => ({ ...current, loading: true, error: '', query }));
+      try {
+        const data = await adminApi.users(query);
+        setUsers((current) => ({
+          ...current,
+          loading: false,
+          error: '',
+          items: data.items,
+          pagination: data.pagination,
+          query,
+        }));
+      } catch (error) {
+        if (error.status === 401) {
+          handleUnauthorized();
+        }
+        setUsers((current) => ({ ...current, loading: false, error: error.message }));
       }
-      setUsers((current) => ({ ...current, loading: false, error: error.message }));
-    }
-  };
+    },
+    [handleUnauthorized, users.query]
+  );
 
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     setStats((current) => ({ ...current, loading: true, error: '' }));
     try {
       const data = await adminApi.stats();
@@ -153,34 +162,37 @@ export default function App() {
       }
       setStats({ loading: false, error: error.message, data: null });
     }
-  };
+  }, [handleUnauthorized]);
 
-  const loadAuditLogs = async (filters = null) => {
-    const query = filters
-      ? new URLSearchParams(Object.entries(filters).filter(([, value]) => value)).toString()
-      : auditLogs.query;
-    setAuditLogs((current) => ({ ...current, loading: true, error: '', query }));
-    try {
-      const data = await adminApi.auditLogs(query);
-      setAuditLogs((current) => ({
-        ...current,
-        loading: false,
-        error: '',
-        items: data.items,
-        pagination: data.pagination,
-        query,
-      }));
-    } catch (error) {
-      if (error.status === 401) {
-        handleUnauthorized();
+  const loadAuditLogs = useCallback(
+    async (filters = null) => {
+      const query = filters
+        ? new URLSearchParams(Object.entries(filters).filter(([, value]) => value)).toString()
+        : auditLogs.query;
+      setAuditLogs((current) => ({ ...current, loading: true, error: '', query }));
+      try {
+        const data = await adminApi.auditLogs(query);
+        setAuditLogs((current) => ({
+          ...current,
+          loading: false,
+          error: '',
+          items: data.items,
+          pagination: data.pagination,
+          query,
+        }));
+      } catch (error) {
+        if (error.status === 401) {
+          handleUnauthorized();
+        }
+        setAuditLogs((current) => ({ ...current, loading: false, error: error.message }));
       }
-      setAuditLogs((current) => ({ ...current, loading: false, error: error.message }));
-    }
-  };
+    },
+    [auditLogs.query, handleUnauthorized]
+  );
 
   useEffect(() => {
     loadSession();
-  }, []);
+  }, [loadSession]);
 
   useEffect(() => {
     if (!adminUser) {
@@ -194,7 +206,7 @@ export default function App() {
       loadStats();
       loadAuditLogs();
     });
-  }, [adminUser]);
+  }, [adminUser, loadAuditLogs, loadAuctions, loadDashboard, loadStats, loadUsers]);
 
   useEffect(() => {
     if (!adminUser) {
@@ -240,7 +252,15 @@ export default function App() {
       socket.off('auctions:update', handleUpdate);
       socket.off('users:update', handleUpdate);
     };
-  }, [adminUser, auctions.query, auctions.selected?.auction?._id, users.query]);
+  }, [
+    adminUser,
+    auctions.selected?.auction?._id,
+    loadAuctionDetail,
+    loadAuctions,
+    loadDashboard,
+    loadStats,
+    loadUsers,
+  ]);
 
   const login = async (credentials) => {
     setAuthLoading(true);
