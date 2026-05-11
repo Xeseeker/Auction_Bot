@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { ConfirmDialog } from '../components/ConfirmDialog.jsx';
 import { DataTable } from '../components/DataTable.jsx';
 import { PaginationControls } from '../components/PaginationControls.jsx';
 import { Panel } from '../components/Panel.jsx';
@@ -26,6 +27,7 @@ export function AuctionsPage({
 }) {
   const { t } = useLocale();
   const [filters, setFilters] = useState({ search: '', status: 'all' });
+  const [reviewAction, setReviewAction] = useState(null);
   const querySummary = useMemo(
     () =>
       filters.search
@@ -134,26 +136,12 @@ export function AuctionsPage({
               <button className="btn-secondary" onClick={() => onApprove(auction._id)} type="button">
                 {t('approve_auction')}
               </button>
-              <button
-                className="btn-danger"
-                onClick={() => {
-                  const reason = window.prompt(t('reject_reason_prompt')) || '';
-                  onReject(auction._id, reason);
-                }}
-                type="button"
-              >
+              <button className="btn-danger" onClick={() => setReviewAction('reject')} type="button">
                 {t('reject_auction')}
               </button>
             </div>
           ) : auction?.status === 'active' ? (
-            <button
-              className="btn-danger"
-              onClick={() => {
-                const reason = window.prompt(t('cancel_reason_prompt')) || '';
-                onCancel(auction._id, reason);
-              }}
-              type="button"
-            >
+            <button className="btn-danger" onClick={() => setReviewAction('cancel')} type="button">
               {t('cancel_auction')}
             </button>
           ) : null
@@ -268,6 +256,29 @@ export function AuctionsPage({
           </div>
         )}
       </Panel>
+
+      <ConfirmDialog
+        confirmLabel={reviewAction === 'reject' ? t('reject_auction') : t('cancel_auction')}
+        message={reviewAction === 'reject' ? t('reject_auction_confirm') : t('cancel_auction_confirm')}
+        onCancel={() => setReviewAction(null)}
+        onConfirm={(reason) => {
+          if (!auction) {
+            return;
+          }
+
+          if (reviewAction === 'reject') {
+            onReject(auction._id, reason);
+          } else if (reviewAction === 'cancel') {
+            onCancel(auction._id, reason);
+          }
+
+          setReviewAction(null);
+        }}
+        open={Boolean(reviewAction)}
+        reasonLabel={t('reason_label')}
+        reasonPlaceholder={reviewAction === 'reject' ? t('reject_reason_prompt') : t('cancel_reason_prompt')}
+        title={reviewAction === 'reject' ? t('reject_auction') : t('cancel_auction')}
+      />
     </div>
   );
 }
