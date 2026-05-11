@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const userFind = vi.fn();
 const userCountDocuments = vi.fn();
 const userFindById = vi.fn();
+const userFindOne = vi.fn();
 const recordAuditLog = vi.fn();
 const emitPlatformUpdate = vi.fn();
 const sendBotMessage = vi.fn();
@@ -12,6 +13,7 @@ vi.mock('../models/User.js', () => ({
     find: userFind,
     countDocuments: userCountDocuments,
     findById: userFindById,
+    findOne: userFindOne,
   },
 }));
 
@@ -187,6 +189,62 @@ describe('admin moderation actions', () => {
       type: 'seller:approval-reviewed',
       userId: 'user-id',
       approved: false,
+    });
+  });
+});
+
+describe('requestSellerApproval', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('returns approved when the seller is already approved', async () => {
+    const { requestSellerApproval } = await import('./adminService.js');
+    const user = { sellerApproved: true };
+    userFindOne.mockResolvedValue(user);
+
+    await expect(requestSellerApproval('123456')).resolves.toEqual({ user, state: 'approved' });
+
+    expect(emitPlatformUpdate).not.toHaveBeenCalled();
+  });
+
+  it('returns pending when an approval request is already waiting', async () => {
+    const { requestSellerApproval } = await import('./adminService.js');
+    const user = { sellerApproved: false, sellerApprovalStatus: 'pending' };
+    userFindOne.mockResolvedValue(user);
+
+    await expect(requestSellerApproval('123456')).resolves.toEqual({ user, state: 'pending' });
+
+    expect(emitPlatformUpdate).not.toHaveBeenCalled();
+  });
+
+  it('marks a user approval request as pending', async () => {
+    const { requestSellerApproval } = await import('./adminService.js');
+    const user = {
+      _id: 'user-id',
+      sellerApproved: false,
+      sellerApprovalStatus: 'rejected',
+      save: vi.fn().mockResolvedValue(),
+    };
+    userFindOne.mockResolvedValue(user);
+
+    await expect(requestSellerApproval('123456')).resolves.toEqual({ user, state: 'requested' });
+
+    expect(user.sellerApprovalStatus).toBe('pending');
+    expect(user.sellerApproved).toBe(false);
+    expect(user.approvalRequestedAt).toBeInstanceOf(Date);
+    expect(user.approvedAt).toBeNull();
+    expect(user.approvalReviewedAt).toBeNull();
+    expect(user.approvalRejectionReason).toBe('');
+    expect(user.approvedBy).toBe('');
+    expect(user.save).toHaveBeenCalled();
+    expect(emitPlatformUpdate).toHaveBeenCalledWith('users:update', {
+      type: 'seller:approval-requested',
+      userId: 'user-id',
+    });
+    expect(emitPlatformUpdate).toHaveBeenCalledWith('dashboard:update', {
+      type: 'seller:approval-requested',
+      userId: 'user-id',
     });
   });
 });
